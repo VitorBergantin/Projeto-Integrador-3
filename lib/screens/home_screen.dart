@@ -8,7 +8,9 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Invasão da PUC!')),
+      appBar: AppBar(
+        title: const Text('Invasão da PUC!'),
+        backgroundColor: Colors.red),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
