@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import '../data/ambientes_mock.dart';
 
 class PontosController extends ChangeNotifier {
   double lati = 0.0;
@@ -55,5 +56,44 @@ Future<void> getPosicao() async {
       accuracy: LocationAccuracy.high,
       ),  
     );
+  }
+
+  String? pontoAtual;
+
+  void verificarProximidade() {
+    bool dentroDeAlgum = false;
+
+    for (var amb in ambientesMock) {
+      double distancia = Geolocator.distanceBetween(
+        lati,
+        long,
+        amb.latitude,
+        amb.longitude,
+      );
+
+      if (distancia < amb.raioMetros) {
+        dentroDeAlgum = true;
+
+        if (pontoAtual != amb.id) {
+          pontoAtual = amb.id;
+          notifyListeners();
+        }
+
+        return;
+      }
+    }
+
+    if (!dentroDeAlgum && pontoAtual != null) {
+      pontoAtual = null;
+      notifyListeners();
+    }
+  }
+
+  void atualizarLocalizacao(double novaLat, double novaLong) {
+    lati = novaLat;
+    long = novaLong;
+
+    verificarProximidade();
+    notifyListeners();
   }
 }
