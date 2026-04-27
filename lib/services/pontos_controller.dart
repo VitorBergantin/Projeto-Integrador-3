@@ -5,21 +5,27 @@ class PontosController extends ChangeNotifier {
   double lati = 0.0;
   double long = 0.0;
   String erro = '';
+  bool loading = true;
 
   PontosController() {
     getPosicao();
   }
 
-  Future<void> getPosicao() async {
-    try {
-      Position posicao = await _posicaoAtual();
-      lati = posicao.latitude;
-      long = posicao.longitude;
-    } catch (e) {
-      erro = e.toString();
-    }
-    notifyListeners();
+Future<void> getPosicao() async {
+  loading = true;
+  notifyListeners();
+
+  try {
+    Position posicao = await _posicaoAtual();
+    lati = posicao.latitude;
+    long = posicao.longitude;
+  } catch (e) {
+    erro = 'Erro ao obter localização';
   }
+
+  loading = false;
+  notifyListeners();
+}
 
   Future<Position> _posicaoAtual() async {
     LocationPermission permissao;
@@ -44,6 +50,10 @@ class PontosController extends ChangeNotifier {
       return Future.error('Por favor, habilite a localização');
     }
 
-    return await Geolocator.getCurrentPosition();
+    return await Geolocator.getCurrentPosition(
+      locationSettings: const LocationSettings(
+      accuracy: LocationAccuracy.high,
+      ),  
+    );
   }
 }
