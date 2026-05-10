@@ -8,6 +8,8 @@ import '../theme/game_theme.dart';
 import 'game_screen.dart';
 import 'hero_screen.dart';
 import 'missions_screen.dart';
+import 'combat_training_screen.dart';
+import 'region_explore_screen.dart';
 
 class MapaGameScreen extends StatefulWidget {
   final String playerName;
@@ -69,6 +71,7 @@ class _MapaGameScreenState extends State<MapaGameScreen> {
               child: _GeofenceBanner(
                 ambienteName: ambAtual.nome,
                 onBatalhar: () => _entrarNaBatalha(context, pontos, game),
+                onExplorar: () => _explorarRegiao(context, pontos),
                 onDismiss: () =>
                     setState(() => _battleBannerDismissed = true),
               ),
@@ -94,6 +97,23 @@ class _MapaGameScreenState extends State<MapaGameScreen> {
       MaterialPageRoute(
         fullscreenDialog: true,
         builder: (_) => GameScreen(playerName: widget.playerName),
+      ),
+    );
+  }
+
+  void _explorarRegiao(BuildContext context, PontosController pontos) {
+    final ambId = pontos.pontoAtual;
+    if (ambId == null) return;
+
+    final regionIndex = GameController.regionIndexForAmbiente(ambId);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => RegionExploreScreen(
+          regionIndex: regionIndex,
+          playerName: widget.playerName,
+        ),
       ),
     );
   }
@@ -200,11 +220,13 @@ class _MapTab extends StatelessWidget {
 class _GeofenceBanner extends StatelessWidget {
   final String ambienteName;
   final VoidCallback onBatalhar;
+  final VoidCallback onExplorar;
   final VoidCallback onDismiss;
 
   const _GeofenceBanner({
     required this.ambienteName,
     required this.onBatalhar,
+    required this.onExplorar,
     required this.onDismiss,
   });
 
@@ -212,60 +234,116 @@ class _GeofenceBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: kNavy.withValues(alpha: 0.96),
+        color: kNavy.withValues(alpha: 0.97),
         border: Border.all(color: kGold, width: 2),
         borderRadius: BorderRadius.circular(6),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      child: Row(
+      padding: const EdgeInsets.fromLTRB(12, 8, 10, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('⚔️', style: TextStyle(fontSize: 24)),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  ambienteName.toUpperCase(),
-                  style: const TextStyle(
-                    color: kGold,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2,
+          // ── Header ──────────────────────────────────────
+          Row(
+            children: [
+              const Text('📍', style: TextStyle(fontSize: 16)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      ambienteName.toUpperCase(),
+                      style: const TextStyle(
+                        color: kGold,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                    const Text(
+                      'Zona detectada — o que deseja fazer?',
+                      style: TextStyle(color: kParchmentDim, fontSize: 10),
+                    ),
+                  ],
+                ),
+              ),
+              GestureDetector(
+                onTap: onDismiss,
+                child: const Icon(Icons.close, color: kParchmentDim, size: 16),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 8),
+
+          // ── Botões ───────────────────────────────────────
+          Row(
+            children: [
+              // EXPLORAR
+              Expanded(
+                child: GestureDetector(
+                  onTap: onExplorar,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    decoration: BoxDecoration(
+                      color: kDarkBlue,
+                      border: Border.all(color: kGoldDark),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('🗺️', style: TextStyle(fontSize: 14)),
+                        SizedBox(width: 6),
+                        Text(
+                          'EXPLORAR',
+                          style: TextStyle(
+                            color: kParchment,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                const Text(
-                  'Zona de batalha detectada!',
-                  style: TextStyle(color: kParchmentDim, fontSize: 11),
-                ),
-              ],
-            ),
-          ),
-          GestureDetector(
-            onTap: onBatalhar,
-            child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: kGold.withValues(alpha: 0.15),
-                border: Border.all(color: kGold),
-                borderRadius: BorderRadius.circular(4),
               ),
-              child: const Text(
-                'BATALHAR',
-                style: TextStyle(
-                  color: kGold,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.5,
+
+              const SizedBox(width: 8),
+
+              // BATALHAR
+              Expanded(
+                child: GestureDetector(
+                  onTap: onBatalhar,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    decoration: BoxDecoration(
+                      color: kGold.withValues(alpha: 0.15),
+                      border: Border.all(color: kGold),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('⚔️', style: TextStyle(fontSize: 14)),
+                        SizedBox(width: 6),
+                        Text(
+                          'BATALHAR',
+                          style: TextStyle(
+                            color: kGold,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-          const SizedBox(width: 6),
-          GestureDetector(
-            onTap: onDismiss,
-            child: const Icon(Icons.close, color: kParchmentDim, size: 18),
+            ],
           ),
         ],
       ),
@@ -313,7 +391,7 @@ class _BottomNav extends StatelessWidget {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// SETTINGS TAB (placeholder)
+// SETTINGS TAB
 // ══════════════════════════════════════════════════════════════════
 class _SettingsTab extends StatelessWidget {
   final String playerName;
@@ -322,16 +400,84 @@ class _SettingsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             const Text('CONFIGURAÇÕES', style: kTitleStyle),
-            const SizedBox(height: 4),
+            const Divider(color: kGoldDark, height: 20),
+
+            // ── TREINO DE COMBATE (destaque principal) ────────
+            const Text('PRÁTICA', style: kDimStyle),
+            const SizedBox(height: 10),
+            GestureDetector(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) =>
+                      CombatTrainingScreen(playerName: playerName),
+                ),
+              ),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: kGold.withValues(alpha: 0.08),
+                  border: Border.all(color: kGold, width: 2),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 52,
+                      height: 52,
+                      decoration: ffBox(
+                          borderColor: kGoldDark, bgColor: kNavy),
+                      child: const Center(
+                          child:
+                              Text('⚔️', style: TextStyle(fontSize: 26))),
+                    ),
+                    const SizedBox(width: 14),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'TREINO DE COMBATE',
+                            style: TextStyle(
+                              color: kGold,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 2,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Pratique o quiz sem precisar\nir ao campus. XP real garantido!',
+                            style: TextStyle(
+                                color: kParchmentDim,
+                                fontSize: 12,
+                                height: 1.4),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.arrow_forward_ios,
+                        color: kGold, size: 16),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
             const Divider(color: kGoldDark),
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
+
+            // ── AUDIO ─────────────────────────────────────────
+            const Text('ÁUDIO', style: kDimStyle),
+            const SizedBox(height: 10),
             _SettingsTile(
               icon: '🔊',
               label: 'Sons do Jogo',
@@ -344,31 +490,33 @@ class _SettingsTab extends StatelessWidget {
               value: 'Ativado',
               onTap: () {},
             ),
-            _SettingsTile(
-              icon: '📍',
-              label: 'Localização',
-              value: 'GPS Ativo',
-              onTap: () {},
-            ),
-            const SizedBox(height: 24),
+
+            const SizedBox(height: 16),
             const Divider(color: kGoldDark),
             const SizedBox(height: 12),
-            const Text('CONTA', style: kDimStyle),
-            const SizedBox(height: 12),
+
+            // ── SISTEMA ───────────────────────────────────────
+            const Text('SISTEMA', style: kDimStyle),
+            const SizedBox(height: 10),
+            _SettingsTile(
+              icon: '📍',
+              label: 'Localização GPS',
+              value: 'Ativo',
+              onTap: () {},
+            ),
             _SettingsTile(
               icon: '🛡️',
               label: 'Jogador',
               value: playerName,
               onTap: () {},
             ),
-            const Spacer(),
+
+            const SizedBox(height: 32),
             Center(
               child: Text(
                 'PROJETO INTEGRADOR 3  •  PUC CAMPINAS',
                 style: TextStyle(
-                    color: kGoldDark,
-                    fontSize: 9,
-                    letterSpacing: 2),
+                    color: kBorder, fontSize: 9, letterSpacing: 2),
               ),
             ),
           ],

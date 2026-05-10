@@ -459,79 +459,102 @@ class _CombatView extends StatelessWidget {
 
     return Column(
       children: [
-        // ── Seção do inimigo ──────────────────────────────
+        // ── Área de batalha (sprites + stats) ────────────────
         Expanded(
-          flex: 35,
+          flex: 42,
           child: Container(
             color: region.backgroundColor,
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Column(
               children: [
-                // Sprite do inimigo
-                Container(
-                  width: 70,
-                  height: 70,
-                  decoration: ffBox(
-                      borderColor: enemy.color,
-                      bgColor: kNavy),
-                  child: Center(
-                    child: Text(enemy.emoji,
-                        style: const TextStyle(fontSize: 38)),
+                // ── Sprites placeholder ─────────────────────
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 8, 10, 4),
+                    child: Row(
+                      children: [
+                        // Sprite do inimigo (esquerda)
+                        Expanded(
+                          child: _SpritePlaceholder(
+                            label: enemy.name,
+                            sublabel: 'INIMIGO',
+                            borderColor: enemy.color,
+                            emoji: enemy.emoji,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        // Sprite do herói (direita)
+                        Expanded(
+                          child: _SpritePlaceholder(
+                            label: game.player.name,
+                            sublabel: 'HERÓI',
+                            borderColor: kGold,
+                            emoji: '🧙',
+                            alignRight: true,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                const SizedBox(width: 10),
-                // Stats do inimigo
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+
+                // ── Barras de HP ────────────────────────────
+                Container(
+                  padding: const EdgeInsets.fromLTRB(10, 4, 10, 6),
+                  decoration: BoxDecoration(
+                    color: kNavy.withValues(alpha: 0.6),
+                    border: const Border(
+                        top: BorderSide(color: kBorder, width: 1)),
+                  ),
+                  child: Row(
                     children: [
-                      Text(
-                        enemy.name.toUpperCase(),
-                        style: TextStyle(
-                          color: enemy.color,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2,
+                      // HP inimigo
+                      Expanded(
+                        child: FfBar(
+                          label: 'HP',
+                          current: enemy.hp,
+                          max: enemy.maxHp,
+                          color: kCrimson,
+                          lightColor: kCrimsonLight,
                         ),
                       ),
-                      const SizedBox(height: 6),
-                      FfBar(
-                        label: 'HP',
-                        current: enemy.hp,
-                        max: enemy.maxHp,
-                        color: kCrimson,
-                        lightColor: kCrimsonLight,
-                      ),
-                      const SizedBox(height: 8),
-                      // Feedback da resposta
-                      if (answerResult != null)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: ffBox(
-                            borderColor: answerResult
-                                ? kGreenHPLight
-                                : kCrimsonLight,
-                            bgColor: answerResult
-                                ? kGreenHP.withValues(alpha: 0.2)
-                                : kCrimson.withValues(alpha: 0.2),
-                          ),
-                          child: Text(
-                            answerResult
-                                ? '✦ Acerto! Ataque crítico!'
-                                : '✦ Errou! Tome o golpe!',
-                            style: TextStyle(
-                              color: answerResult
-                                  ? kGreenHPLight
-                                  : kCrimsonLight,
-                              fontSize: 11,
-                            ),
-                          ),
+                      const SizedBox(width: 12),
+                      // HP jogador
+                      Expanded(
+                        child: FfBar(
+                          label: 'HP',
+                          current: game.player.hp,
+                          max: game.player.maxHp,
+                          color: kGreenHP,
+                          lightColor: kGreenHPLight,
                         ),
+                      ),
                     ],
                   ),
                 ),
+
+                // ── Feedback da resposta ─────────────────────
+                if (answerResult != null)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 4),
+                    color: answerResult
+                        ? kGreenHP.withValues(alpha: 0.25)
+                        : kCrimson.withValues(alpha: 0.25),
+                    child: Text(
+                      answerResult
+                          ? '✦  Resposta correta! Ataque crítico!'
+                          : '✦  Resposta errada! O inimigo atacou!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: answerResult
+                            ? kGreenHPLight
+                            : kCrimsonLight,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -634,6 +657,126 @@ class _CombatView extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SPRITE PLACEHOLDER
+// ═══════════════════════════════════════════════════════════════
+class _SpritePlaceholder extends StatelessWidget {
+  final String label;
+  final String sublabel;
+  final Color borderColor;
+  final String emoji;
+  final bool alignRight;
+
+  const _SpritePlaceholder({
+    required this.label,
+    required this.sublabel,
+    required this.borderColor,
+    required this.emoji,
+    this.alignRight = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: kNavy,
+        border: Border.all(
+          color: borderColor.withValues(alpha: 0.5),
+          width: 1.5,
+        ),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Stack(
+        children: [
+          // Watermark "SPRITE"
+          Center(
+            child: Text(
+              'SPRITE',
+              style: TextStyle(
+                color: borderColor.withValues(alpha: 0.06),
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 4,
+              ),
+            ),
+          ),
+
+          // Emoji temporário centralizado
+          Center(
+            child: Text(
+              emoji,
+              style: TextStyle(
+                fontSize: 32,
+                color: const Color(0xFFFFFFFF).withValues(alpha: 0.25),
+              ),
+            ),
+          ),
+
+          // Label no topo
+          Positioned(
+            top: 4,
+            left: alignRight ? null : 6,
+            right: alignRight ? 6 : null,
+            child: Text(
+              sublabel,
+              style: TextStyle(
+                color: borderColor.withValues(alpha: 0.7),
+                fontSize: 8,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 2,
+              ),
+            ),
+          ),
+
+          // Nome do personagem na base
+          Positioned(
+            bottom: 4,
+            left: 0,
+            right: 0,
+            child: Text(
+              label.length > 12
+                  ? '${label.substring(0, 12)}…'
+                  : label,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: borderColor.withValues(alpha: 0.6),
+                fontSize: 9,
+                letterSpacing: 1,
+              ),
+            ),
+          ),
+
+          // Corner ornaments
+          Positioned(
+              top: 3, left: 3,
+              child: Text('◆',
+                  style: TextStyle(
+                      color: borderColor.withValues(alpha: 0.3),
+                      fontSize: 6))),
+          Positioned(
+              top: 3, right: 3,
+              child: Text('◆',
+                  style: TextStyle(
+                      color: borderColor.withValues(alpha: 0.3),
+                      fontSize: 6))),
+          Positioned(
+              bottom: 3, left: 3,
+              child: Text('◆',
+                  style: TextStyle(
+                      color: borderColor.withValues(alpha: 0.3),
+                      fontSize: 6))),
+          Positioned(
+              bottom: 3, right: 3,
+              child: Text('◆',
+                  style: TextStyle(
+                      color: borderColor.withValues(alpha: 0.3),
+                      fontSize: 6))),
+        ],
+      ),
     );
   }
 }

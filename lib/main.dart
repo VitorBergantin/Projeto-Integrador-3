@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'screens/home_screen.dart';
+import 'screens/loading_screen.dart';
 import 'services/pontos_controller.dart';
 import 'controllers/game_controller.dart';
 
@@ -35,7 +35,7 @@ class RpgMobileApp extends StatelessWidget {
           brightness: Brightness.dark,
         ),
       ),
-      home: const HomeScreen(),
+      home: const LoadingScreen(),
     );
   }
 }

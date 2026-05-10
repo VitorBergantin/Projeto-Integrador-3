@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../controllers/game_controller.dart';
 import '../models/game_region.dart';
 import '../theme/game_theme.dart';
+import 'region_explore_screen.dart';
 
 class MissionsScreen extends StatelessWidget {
   const MissionsScreen({super.key});
@@ -219,6 +220,55 @@ class _RegionCard extends StatelessWidget {
                             color: kParchmentDim, fontSize: 11),
                       ),
                     ],
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // ── Botão Explorar ─────────────────────────
+                  GestureDetector(
+                    onTap: () {
+                      final game = context
+                          .read<GameController>();
+                      game.enterRegion(index);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => RegionExploreScreen(
+                            regionIndex: index,
+                            playerName: game.player.name,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10),
+                      decoration: ffBox(
+                        borderColor: region.primaryColor
+                            .withValues(alpha: 0.7),
+                        bgColor: region.primaryColor
+                            .withValues(alpha: 0.08),
+                      ),
+                      child: Row(
+                        mainAxisAlignment:
+                            MainAxisAlignment.center,
+                        children: [
+                          const Text('🗺️',
+                              style: TextStyle(fontSize: 16)),
+                          const SizedBox(width: 8),
+                          Text(
+                            'EXPLORAR REGIÃO',
+                            style: TextStyle(
+                              color: region.primaryColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 2,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
