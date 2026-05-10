@@ -77,6 +77,7 @@ class PontosController extends ChangeNotifier {
   }
 
   String? pontoAtual;
+  Ambiente? ambienteAtual;
 
   void verificarProximidade() {
     for (var amb in ambientesMock) {
@@ -90,6 +91,7 @@ class PontosController extends ChangeNotifier {
       if (distancia <= amb.raioMetros) {
         if (pontoAtual != amb.id) {
           pontoAtual = amb.id;
+          ambienteAtual = amb;
 
           onEntrouNaArea(amb);
 
@@ -102,6 +104,7 @@ class PontosController extends ChangeNotifier {
     if (pontoAtual != null) {
       onSaiuDaArea();
       pontoAtual = null;
+      ambienteAtual = null;
       notifyListeners();
     }
   }
