@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'screens/home_screen.dart';
 import 'services/pontos_controller.dart';
+import 'controllers/game_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,6 +13,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => PontosController()),
+        ChangeNotifierProvider(create: (_) => GameController()),
       ],
       child: const RpgMobileApp(),
     ),
@@ -24,62 +26,16 @@ class RpgMobileApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'RPG Mobile 2026',
-      theme: ThemeData(useMaterial3: true),
+      title: 'Invasão da PUC',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+          brightness: Brightness.dark,
+        ),
+      ),
       home: const HomeScreen(),
     );
   }
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: homepage(),
-    );
-  }
-}
-
-class homepage extends StatefulWidget {
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<homepage>{
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          AspectRatio(
-            aspectRatio: 1, // em outras palavras, é um quadrado
-            child: Container(
-              color: Colors.black,
-              ),
-            ),
-          Expanded(
-            child: Container(
-              color: Colors.grey,
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children:[
-                    Text('G A M E B O Y',
-                        style: textStyle(color: Colors.white)
-                    ),
-                    Container(color: Colors.red),
-                    Text("Criado por equipe 3 ")
-                  ]
-                ),
-              )
-              ),
-      )
-        ],
-      ),
-    );
-  }
-
-  TextStyle? textStyle(color) {}
 }
