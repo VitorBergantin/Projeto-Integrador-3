@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'screens/loading_screen.dart';
 import 'services/pontos_controller.dart';
 import 'data/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'controllers/game_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +18,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => PontosController()),
+        ChangeNotifierProvider(create: (_) => GameController()),
       ],
       child: const RpgMobileApp(),
     ),
@@ -29,9 +31,16 @@ class RpgMobileApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'RPG Mobile 2026',
-      theme: ThemeData(useMaterial3: true),
-      home: const HomeScreen(),
+      title: 'Invasão da PUC',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+          brightness: Brightness.dark,
+        ),
+      ),
+      home: const LoadingScreen(),
     );
   }
 }
