@@ -5,7 +5,6 @@ import 'dart:async';
 import '../models/ambiente.dart';
 
 class PontosController extends ChangeNotifier {
-
   double lati = 0.0;
   double long = 0.0;
   String erro = '';
@@ -31,21 +30,16 @@ class PontosController extends ChangeNotifier {
   }
 
   Future<void> carregarAmbientes() async {
-
     try {
-      final snapshot =
-          await FirebaseFirestore.instance
-              .collection('ambientes')
-              .get();
+      final snapshot = await FirebaseFirestore.instance
+          .collection('ambientes')
+          .get();
 
       ambientes = snapshot.docs.map((doc) {
-
         final data = doc.data();
         return Ambiente.fromFirestore(data);
       }).toList();
-
     } catch (e) {
-
       erro = 'Erro ao carregar ambientes';
 
       debugPrint(e.toString());
@@ -55,18 +49,14 @@ class PontosController extends ChangeNotifier {
   }
 
   Future<void> getPosicao() async {
-
     loading = true;
     notifyListeners();
 
     try {
-
-      Position posicao =
-          await _posicaoAtual();
+      Position posicao = await _posicaoAtual();
 
       lati = posicao.latitude;
       long = posicao.longitude;
-
     } catch (e) {
       erro = 'Erro ao obter localização';
     }
@@ -77,74 +67,46 @@ class PontosController extends ChangeNotifier {
   }
 
   Future<Position> _posicaoAtual() async {
-
     LocationPermission permissao;
 
-    bool ativado =
-        await Geolocator
-            .isLocationServiceEnabled();
+    bool ativado = await Geolocator.isLocationServiceEnabled();
 
     if (!ativado) {
-      return Future.error(
-        'Por favor, habilite a localização',
-      );
+      return Future.error('Por favor, habilite a localização');
     }
 
-    permissao =
-        await Geolocator.checkPermission();
+    permissao = await Geolocator.checkPermission();
 
-    if (permissao ==
-        LocationPermission.denied) {
+    if (permissao == LocationPermission.denied) {
+      permissao = await Geolocator.requestPermission();
 
-      permissao =
-          await Geolocator.requestPermission();
-
-      if (permissao ==
-          LocationPermission.denied) {
-
-        return Future.error(
-          'Precisamos da localização',
-        );
+      if (permissao == LocationPermission.denied) {
+        return Future.error('Precisamos da localização');
       }
     }
 
-    if (permissao ==
-        LocationPermission.deniedForever) {
-
-      return Future.error(
-        'Permissão negada permanentemente',
-      );
+    if (permissao == LocationPermission.deniedForever) {
+      return Future.error('Permissão negada permanentemente');
     }
 
     return await Geolocator.getCurrentPosition(
-      locationSettings:
-          const LocationSettings(
-        accuracy: LocationAccuracy.high,
-      ),
+      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
     );
   }
 
   void onEntrouNaArea(Ambiente amb) {
-    debugPrint(
-      'Entrou em ${amb.nome}',
-    );
+    debugPrint('Entrou em ${amb.nome}');
   }
 
   void onSaiuDaArea() {
-    debugPrint(
-      'Saiu da área',
-    );
+    debugPrint('Saiu da área');
   }
 
-  String? pontoAtual;
   Ambiente? ambienteAtual;
 
   void verificarProximidade() {
-
     for (var amb in ambientes) {
-
-      double distancia =
-          Geolocator.distanceBetween(
+      double distancia = Geolocator.distanceBetween(
         lati,
         long,
         amb.latitude,
@@ -152,7 +114,6 @@ class PontosController extends ChangeNotifier {
       );
 
       if (distancia <= amb.raioMetros) {
-
         if (pontoAtual != amb.id) {
           pontoAtual = amb.id;
           ambienteAtual = amb;
@@ -172,11 +133,7 @@ class PontosController extends ChangeNotifier {
     }
   }
 
-  void atualizarLocalizacao(
-    double novaLat,
-    double novaLong,
-  ) {
-
+  void atualizarLocalizacao(double novaLat, double novaLong) {
     lati = novaLat;
 
     long = novaLong;
@@ -187,22 +144,13 @@ class PontosController extends ChangeNotifier {
   void monitoramento() {
     _positionStream =
         Geolocator.getPositionStream(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
 
-      locationSettings:
-          const LocationSettings(
-
-        accuracy:
-            LocationAccuracy.high,
-
-        distanceFilter: 5,
-      ),
-
-    ).listen((Position position) {
-
-      atualizarLocalizacao(
-        position.latitude,
-        position.longitude,
-      );
-    });
+            distanceFilter: 5,
+          ),
+        ).listen((Position position) {
+          atualizarLocalizacao(position.latitude, position.longitude);
+        });
   }
 }

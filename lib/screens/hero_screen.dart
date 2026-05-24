@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import '../theme/game_theme.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -12,20 +14,41 @@ class HeroScreen extends StatelessWidget {
 
     return FutureBuilder<DocumentSnapshot>(
       future: FirebaseFirestore.instance.collection('jogadores').doc(uid).get(),
-
       builder: (context, snapshot) {
-        // ─────────────────────────────
         // Loading
-        // ─────────────────────────────
-        if (!snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
+
+        // Erro
+        if (snapshot.hasError) {
+          return const Center(
+            child: Text(
+              'Erro ao carregar herói',
+              style: TextStyle(color: Colors.white),
+            ),
+          );
+        }
+
+        // Documento inexistente
+        if (!snapshot.hasData || !snapshot.data!.exists) {
+          return const Center(
+            child: Text(
+              'Jogador não encontrado',
+              style: TextStyle(color: Colors.white),
+            ),
+          );
+        }
+
         final data = snapshot.data!.data() as Map<String, dynamic>;
-        // Jogador
+
+        // Dados do jogador
         final nome = data['nome'] ?? 'Jogador';
-        final xp = data['xp'] ?? 0;
-        final level = data['level'] ?? 1;
-        final progresso = data['progresso'] as Map<String, dynamic>;
+        final xp = (data['xp'] ?? 0) as int;
+
+        final level = (data['level'] ?? 1) as int;
+        final progresso = (data['progresso'] as Map<String, dynamic>?) ?? {};
+
         // Regiões completas
         int regioesConcluidas = 0;
 
@@ -44,11 +67,14 @@ class HeroScreen extends StatelessWidget {
         if ((progresso['capela'] ?? 0) >= 1) {
           regioesConcluidas++;
         }
-        // XP necessário
+        // Status
         final xpNext = level * 100;
-        // HP
+
         final hp = 100 + (level * 20);
+
         final maxHp = 100 + (level * 20);
+
+        final xpRestante = (xpNext - xp).clamp(0, 999999).toInt();
 
         return SafeArea(
           child: SingleChildScrollView(
@@ -98,7 +124,7 @@ class HeroScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'NÍVEL  $level',
+                              'NÍVEL $level',
                               style: const TextStyle(
                                 color: kGold,
                                 fontSize: 13,
@@ -124,7 +150,6 @@ class HeroScreen extends StatelessWidget {
                         color: kGreenHP,
                         lightColor: kGreenHPLight,
                       ),
-
                       const SizedBox(height: 10),
                       FfBar(
                         label: 'XP',
@@ -133,15 +158,11 @@ class HeroScreen extends StatelessWidget {
                         color: kBlueXP,
                         lightColor: kBlueXPLight,
                       ),
-
                       const SizedBox(height: 6),
-
                       Align(
                         alignment: Alignment.centerRight,
-
                         child: Text(
-                          '${xpNext - xp} XP para próximo nível',
-
+                          '$xpRestante XP para próximo nível',
                           style: const TextStyle(
                             color: kParchmentDim,
                             fontSize: 10,
@@ -152,7 +173,7 @@ class HeroScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Região atual
+                // Progresso
                 const Text('PROGRESSO', style: kDimStyle),
                 const SizedBox(height: 8),
                 FfCornerBox(
@@ -179,9 +200,15 @@ class HeroScreen extends StatelessWidget {
   }
 
   String _classeDoNivel(int level) {
-    if (level < 3) return 'Aprendiz da PUC';
-    if (level < 6) return 'Estudante Corajoso';
-    if (level < 9) return 'Veterano do Campus';
+    if (level < 3) {
+      return 'Aprendiz da PUC';
+    }
+    if (level < 6) {
+      return 'Estudante Corajoso';
+    }
+    if (level < 9) {
+      return 'Veterano do Campus';
+    }
     return 'Mestre das Ciências';
   }
 }
@@ -199,12 +226,14 @@ class _AtribRow extends StatelessWidget {
       children: [
         Text(emoji, style: const TextStyle(fontSize: 18)),
         const SizedBox(width: 10),
+
         Expanded(
           child: Text(
             label,
             style: const TextStyle(color: kParchment, fontSize: 13),
           ),
         ),
+
         Text(
           value,
           style: const TextStyle(
@@ -214,48 +243,6 @@ class _AtribRow extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _Badge extends StatelessWidget {
-  final String emoji;
-  final String label;
-  final bool unlocked;
-
-  const _Badge(this.emoji, this.label, this.unlocked);
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: ffBox(
-          borderColor: unlocked ? kGold : kBorder,
-          bgColor: unlocked ? kGold.withValues(alpha: 0.08) : kNavy,
-        ),
-        child: Column(
-          children: [
-            Text(
-              emoji,
-              style: TextStyle(
-                fontSize: 22,
-                color: unlocked ? null : const Color(0x44FFFFFF),
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: unlocked ? kParchmentDim : kBorder,
-                fontSize: 9,
-                height: 1.4,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
