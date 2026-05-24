@@ -3,7 +3,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import '../services/pontos_controller.dart';
 import '../controllers/game_controller.dart';
-import '../data/ambientes_mock.dart';
 import '../theme/game_theme.dart';
 import 'game_screen.dart';
 import 'hero_screen.dart';
@@ -72,8 +71,7 @@ class _MapaGameScreenState extends State<MapaGameScreen> {
                 ambienteName: ambAtual.nome,
                 onBatalhar: () => _entrarNaBatalha(context, pontos, game),
                 onExplorar: () => _explorarRegiao(context, pontos),
-                onDismiss: () =>
-                    setState(() => _battleBannerDismissed = true),
+                onDismiss: () => setState(() => _battleBannerDismissed = true),
               ),
             ),
         ],
@@ -157,8 +155,7 @@ class _MapTab extends StatelessWidget {
             children: [
               const Text('⚠️', style: TextStyle(fontSize: 48)),
               const SizedBox(height: 12),
-              Text(pontos.erro,
-                  textAlign: TextAlign.center, style: kBodyStyle),
+              Text(pontos.erro, textAlign: TextAlign.center, style: kBodyStyle),
             ],
           ),
         ),
@@ -180,24 +177,29 @@ class _MapTab extends StatelessWidget {
         Marker(
           markerId: const MarkerId('jogador'),
           position: pos,
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
-          infoWindow: InfoWindow(title: '⚔ Você está aqui'),
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueAzure,
+          ),
+          infoWindow: const InfoWindow(title: '⚔ Você está aqui'),
         ),
-        ...ambientesMock.map((amb) => Marker(
-              markerId: MarkerId(amb.id),
-              position: LatLng(amb.latitude, amb.longitude),
-              icon: BitmapDescriptor.defaultMarkerWithHue(
-                pontos.pontoAtual == amb.id
-                    ? BitmapDescriptor.hueYellow
-                    : BitmapDescriptor.hueRed,
-              ),
-              infoWindow: InfoWindow(
-                title: amb.nome,
-                snippet: amb.descricao,
-              ),
-            )),
+
+        ...pontos.ambientes.map(
+          (amb) => Marker(
+            markerId: MarkerId(amb.id),
+
+            position: LatLng(amb.latitude, amb.longitude),
+
+            icon: BitmapDescriptor.defaultMarkerWithHue(
+              pontos.pontoAtual == amb.id
+                  ? BitmapDescriptor.hueYellow
+                  : BitmapDescriptor.hueRed,
+            ),
+
+            infoWindow: InfoWindow(title: amb.nome, snippet: amb.descricao),
+          ),
+        ),
       },
-      circles: ambientesMock.map((amb) {
+      circles: pontos.ambientes.map((amb) {
         final dentro = pontos.pontoAtual == amb.id;
         return Circle(
           circleId: CircleId(amb.id),
@@ -376,14 +378,28 @@ class _BottomNav extends StatelessWidget {
         selectedItemColor: kGold,
         unselectedItemColor: kParchmentDim,
         selectedLabelStyle: const TextStyle(
-            fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.2),
-        unselectedLabelStyle:
-            const TextStyle(fontSize: 10, letterSpacing: 1.2),
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.2,
+        ),
+        unselectedLabelStyle: const TextStyle(fontSize: 10, letterSpacing: 1.2),
         items: const [
-          BottomNavigationBarItem(icon: Text('🗺️', style: TextStyle(fontSize: 22)), label: 'Mapa'),
-          BottomNavigationBarItem(icon: Text('⚔️', style: TextStyle(fontSize: 22)), label: 'Herói'),
-          BottomNavigationBarItem(icon: Text('📜', style: TextStyle(fontSize: 22)), label: 'Missões'),
-          BottomNavigationBarItem(icon: Text('⚙️', style: TextStyle(fontSize: 20)), label: 'Config'),
+          BottomNavigationBarItem(
+            icon: Text('🗺️', style: TextStyle(fontSize: 22)),
+            label: 'Mapa',
+          ),
+          BottomNavigationBarItem(
+            icon: Text('⚔️', style: TextStyle(fontSize: 22)),
+            label: 'Herói',
+          ),
+          BottomNavigationBarItem(
+            icon: Text('📜', style: TextStyle(fontSize: 22)),
+            label: 'Missões',
+          ),
+          BottomNavigationBarItem(
+            icon: Text('⚙️', style: TextStyle(fontSize: 20)),
+            label: 'Config',
+          ),
         ],
       ),
     );
@@ -416,8 +432,7 @@ class _SettingsTab extends StatelessWidget {
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) =>
-                      CombatTrainingScreen(playerName: playerName),
+                  builder: (_) => CombatTrainingScreen(playerName: playerName),
                 ),
               ),
               child: Container(
@@ -433,11 +448,10 @@ class _SettingsTab extends StatelessWidget {
                     Container(
                       width: 52,
                       height: 52,
-                      decoration: ffBox(
-                          borderColor: kGoldDark, bgColor: kNavy),
+                      decoration: ffBox(borderColor: kGoldDark, bgColor: kNavy),
                       child: const Center(
-                          child:
-                              Text('⚔️', style: TextStyle(fontSize: 26))),
+                        child: Text('⚔️', style: TextStyle(fontSize: 26)),
+                      ),
                     ),
                     const SizedBox(width: 14),
                     const Expanded(
@@ -457,15 +471,15 @@ class _SettingsTab extends StatelessWidget {
                           Text(
                             'Pratique o quiz sem precisar\nir ao campus. XP real garantido!',
                             style: TextStyle(
-                                color: kParchmentDim,
-                                fontSize: 12,
-                                height: 1.4),
+                              color: kParchmentDim,
+                              fontSize: 12,
+                              height: 1.4,
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    const Icon(Icons.arrow_forward_ios,
-                        color: kGold, size: 16),
+                    const Icon(Icons.arrow_forward_ios, color: kGold, size: 16),
                   ],
                 ),
               ),
@@ -515,8 +529,7 @@ class _SettingsTab extends StatelessWidget {
             Center(
               child: Text(
                 'PROJETO INTEGRADOR 3  •  PUC CAMPINAS',
-                style: TextStyle(
-                    color: kBorder, fontSize: 9, letterSpacing: 2),
+                style: TextStyle(color: kBorder, fontSize: 9, letterSpacing: 2),
               ),
             ),
           ],
@@ -551,12 +564,8 @@ class _SettingsTile extends StatelessWidget {
           children: [
             Text(icon, style: const TextStyle(fontSize: 18)),
             const SizedBox(width: 12),
-            Expanded(
-              child: Text(label, style: kBodyStyle),
-            ),
-            Text(value,
-                style:
-                    const TextStyle(color: kGold, fontSize: 12)),
+            Expanded(child: Text(label, style: kBodyStyle)),
+            Text(value, style: const TextStyle(color: kGold, fontSize: 12)),
             const SizedBox(width: 6),
             const Icon(Icons.chevron_right, color: kGoldDark, size: 18),
           ],
