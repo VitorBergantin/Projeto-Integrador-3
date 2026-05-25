@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 
 import '../controllers/campaign_controller.dart';
 import '../controllers/game_controller.dart';
-import '../data/ambientes_mock.dart';
 import '../models/ambiente.dart';
 import '../services/pontos_controller.dart';
 import '../theme/game_theme.dart';
@@ -17,9 +16,12 @@ class MinimapScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final pontos = context.watch<PontosController>();
     final campaign = context.watch<CampaignController>();
-    final ambientes = _orderedAmbientes(
-      pontos.ambientes.isEmpty ? ambientesMock : pontos.ambientes,
-    );
+
+    if (pontos.ambientes.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final ambientes = _orderedAmbientes(pontos.ambientes);
     final currentAmbId = pontos.pontoAtual;
     final targetAmbId = _targetAmbienteId(campaign);
     final playerOffset = _playerOffset(ambientes, pontos.lati, pontos.long);
