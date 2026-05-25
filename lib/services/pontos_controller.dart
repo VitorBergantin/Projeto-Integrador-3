@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
+import '../data/ambientes_mock.dart';
 import '../models/ambiente.dart';
 
 class PontosController extends ChangeNotifier {
@@ -40,9 +41,20 @@ class PontosController extends ChangeNotifier {
             final data = doc.data();
             return Ambiente.fromFirestore(data, documentId: doc.id);
           })
-          .where((amb) => amb.id.isNotEmpty)
+          .where(
+            (amb) =>
+                amb.id.isNotEmpty && amb.latitude != 0 && amb.longitude != 0,
+          )
           .toList();
+
+      if (ambientes.isEmpty) {
+        ambientes = List<Ambiente>.from(ambientesMock);
+        erro = 'Nenhum ambiente valido no Firebase. Usando pontos locais.';
+      } else {
+        erro = '';
+      }
     } catch (e) {
+      ambientes = List<Ambiente>.from(ambientesMock);
       erro = 'Erro ao carregar ambientes. Usando pontos locais do campus.';
       debugPrint(e.toString());
     }
@@ -108,7 +120,7 @@ class PontosController extends ChangeNotifier {
 
   Ambiente? ambienteAtual;
 
-  void verificarProximidade() {
+  bool verificarProximidade() {
     for (var amb in ambientes) {
       double distancia = Geolocator.distanceBetween(
         lati,
@@ -124,8 +136,9 @@ class PontosController extends ChangeNotifier {
 
           onEntrouNaArea(amb);
           notifyListeners();
+          return true;
         }
-        return;
+        return false;
       }
     }
 
@@ -134,7 +147,10 @@ class PontosController extends ChangeNotifier {
       pontoAtual = null;
       ambienteAtual = null;
       notifyListeners();
+      return true;
     }
+
+    return false;
   }
 
   void atualizarLocalizacao(double novaLat, double novaLong) {
@@ -142,7 +158,10 @@ class PontosController extends ChangeNotifier {
 
     long = novaLong;
 
-    verificarProximidade();
+    final mudouGeofence = verificarProximidade();
+    if (!mudouGeofence) {
+      notifyListeners();
+    }
   }
 
   void monitoramento() {
@@ -151,7 +170,7 @@ class PontosController extends ChangeNotifier {
           locationSettings: const LocationSettings(
             accuracy: LocationAccuracy.high,
 
-            distanceFilter: 5,
+            distanceFilter: 1,
           ),
         ).listen((Position position) {
           atualizarLocalizacao(position.latitude, position.longitude);

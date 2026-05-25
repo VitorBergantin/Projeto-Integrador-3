@@ -548,15 +548,21 @@ List<Ambiente> _orderedAmbientes(List<Ambiente> ambientes) {
 
 Offset _playerOffset(List<Ambiente> ambientes, double lat, double lng) {
   if (lat == 0 || lng == 0) {
-    return _ambienteOffset(
-      ambientes,
-      ambientes.firstWhere(
-        (amb) => amb.id == 'h15',
-        orElse: () => ambientes.first,
-      ),
+    final h15 = ambientes.firstWhere(
+      (amb) => amb.id == 'h15',
+      orElse: () => ambientes.first,
     );
+    return _coordinateOffset(ambientes, h15.latitude, h15.longitude);
   }
 
+  return _coordinateOffset(ambientes, lat, lng);
+}
+
+Offset _ambienteOffset(List<Ambiente> ambientes, Ambiente ambiente) {
+  return _coordinateOffset(ambientes, ambiente.latitude, ambiente.longitude);
+}
+
+Offset _coordinateOffset(List<Ambiente> ambientes, double lat, double lng) {
   final latitudes = ambientes.map((amb) => amb.latitude);
   final longitudes = ambientes.map((amb) => amb.longitude);
   final minLat = latitudes.reduce(math.min);
@@ -572,18 +578,6 @@ Offset _playerOffset(List<Ambiente> ambientes, double lat, double lng) {
     _lerp(0.16, 0.84, x.clamp(-0.1, 1.1)),
     _lerp(0.16, 0.72, y.clamp(-0.1, 1.1)),
   );
-}
-
-Offset _ambienteOffset(List<Ambiente> ambientes, Ambiente ambiente) {
-  const curated = {
-    'biblioteca': Offset(0.20, 0.28),
-    'manacas': Offset(0.60, 0.23),
-    'h15': Offset(0.72, 0.50),
-    'refeitorio': Offset(0.42, 0.58),
-    'capela': Offset(0.25, 0.72),
-  };
-  return curated[ambiente.id] ??
-      _playerOffset(ambientes, ambiente.latitude, ambiente.longitude);
 }
 
 Ambiente? _findAmbiente(List<Ambiente> ambientes, String? id) {
