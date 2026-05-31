@@ -86,8 +86,8 @@ class _RegionCard extends StatelessWidget {
     final borderColor = isCompleted
         ? kGoldDark
         : isCurrent
-            ? region.primaryColor
-            : kBorder;
+        ? region.primaryColor
+        : kBorder;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -102,7 +102,8 @@ class _RegionCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
               border: Border(
-                  bottom: BorderSide(color: borderColor.withValues(alpha: 0.4))),
+                bottom: BorderSide(color: borderColor.withValues(alpha: 0.4)),
+              ),
             ),
             child: Row(
               children: [
@@ -131,37 +132,48 @@ class _RegionCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 8),
                           if (isCompleted)
-                            const Text('✓',
-                                style: TextStyle(
-                                    color: kGreenHPLight, fontSize: 13)),
+                            const Text(
+                              '✓',
+                              style: TextStyle(
+                                color: kGreenHPLight,
+                                fontSize: 13,
+                              ),
+                            ),
                           if (isCurrent)
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
-                                color: region.primaryColor
-                                    .withValues(alpha: 0.2),
+                                color: region.primaryColor.withValues(
+                                  alpha: 0.2,
+                                ),
                                 borderRadius: BorderRadius.circular(3),
                                 border: Border.all(
-                                    color: region.primaryColor, width: 1),
+                                  color: region.primaryColor,
+                                  width: 1,
+                                ),
                               ),
                               child: Text(
                                 'ATUAL',
                                 style: TextStyle(
-                                    color: region.primaryColor,
-                                    fontSize: 8,
-                                    letterSpacing: 1),
+                                  color: region.primaryColor,
+                                  fontSize: 8,
+                                  letterSpacing: 1,
+                                ),
                               ),
                             ),
                           if (!isUnlocked)
-                            const Text('🔒',
-                                style: TextStyle(fontSize: 12)),
+                            const Text('🔒', style: TextStyle(fontSize: 12)),
                         ],
                       ),
                       Text(
                         'Região ${index + 1} de 5',
                         style: const TextStyle(
-                            color: kParchmentDim, fontSize: 10),
+                          color: kParchmentDim,
+                          fontSize: 10,
+                        ),
                       ),
                     ],
                   ),
@@ -180,7 +192,10 @@ class _RegionCard extends StatelessWidget {
                   Text(
                     region.description,
                     style: const TextStyle(
-                        color: kParchmentDim, fontSize: 12, height: 1.5),
+                      color: kParchmentDim,
+                      fontSize: 12,
+                      height: 1.5,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   const Text('INIMIGOS:', style: kDimStyle),
@@ -190,20 +205,23 @@ class _RegionCard extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: 6),
                       child: Row(
                         children: [
-                          Text(e.emoji,
-                              style: const TextStyle(fontSize: 16)),
+                          Image.asset(e.assetPath, width: 64, height: 64),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               e.name,
                               style: const TextStyle(
-                                  color: kParchment, fontSize: 12),
+                                color: kParchment,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
                           Text(
                             'HP ${e.maxHp}  •  +${e.xpReward} XP',
                             style: const TextStyle(
-                                color: kGoldDark, fontSize: 10),
+                              color: kGoldDark,
+                              fontSize: 10,
+                            ),
                           ),
                         ],
                       ),
@@ -217,7 +235,9 @@ class _RegionCard extends StatelessWidget {
                       Text(
                         'Vá fisicamente até ${region.name} na PUC',
                         style: const TextStyle(
-                            color: kParchmentDim, fontSize: 11),
+                          color: kParchmentDim,
+                          fontSize: 11,
+                        ),
                       ),
                     ],
                   ),
@@ -227,8 +247,7 @@ class _RegionCard extends StatelessWidget {
                   // ── Botão Explorar ─────────────────────────
                   GestureDetector(
                     onTap: () {
-                      final game = context
-                          .read<GameController>();
+                      final game = context.read<GameController>();
                       game.enterRegion(index);
                       Navigator.push(
                         context,
@@ -242,20 +261,15 @@ class _RegionCard extends StatelessWidget {
                     },
                     child: Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
                       decoration: ffBox(
-                        borderColor: region.primaryColor
-                            .withValues(alpha: 0.7),
-                        bgColor: region.primaryColor
-                            .withValues(alpha: 0.08),
+                        borderColor: region.primaryColor.withValues(alpha: 0.7),
+                        bgColor: region.primaryColor.withValues(alpha: 0.08),
                       ),
                       child: Row(
-                        mainAxisAlignment:
-                            MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text('🗺️',
-                              style: TextStyle(fontSize: 16)),
+                          const Text('🗺️', style: TextStyle(fontSize: 16)),
                           const SizedBox(width: 8),
                           Text(
                             'EXPLORAR REGIÃO',

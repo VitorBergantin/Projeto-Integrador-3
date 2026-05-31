@@ -7,7 +7,7 @@ class Enemy {
   int hp;
   final int maxHp;
   final int xpReward;
-  final String emoji;
+  final String assetPath;
   final Color color;
   final List<QuizQuestion> questions;
   int _questionIndex = 0;
@@ -16,7 +16,7 @@ class Enemy {
     required this.name,
     required this.maxHp,
     required this.xpReward,
-    required this.emoji,
+    required this.assetPath,
     required this.color,
     required this.questions,
   }) : hp = maxHp;
@@ -36,7 +36,7 @@ class Enemy {
     name: name,
     maxHp: maxHp,
     xpReward: xpReward,
-    emoji: emoji,
+    assetPath: assetPath,
     color: color,
     questions: questions,
   );

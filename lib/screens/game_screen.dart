@@ -434,7 +434,7 @@ class _CombatView extends StatelessWidget {
           child: _MonsterBattleStage(
             regionColor: region.backgroundColor,
             enemyName: enemy.name,
-            enemyEmoji: enemy.emoji,
+            enemyEmoji: enemy.assetPath,
             enemyColor: enemy.color,
             enemyHp: enemy.hp,
             enemyMaxHp: enemy.maxHp,

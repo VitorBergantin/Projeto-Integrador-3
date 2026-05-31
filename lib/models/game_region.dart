@@ -43,7 +43,7 @@ List<GameRegion> get gameRegions => [
         name: 'Bug de Sintaxe',
         maxHp: 50,
         xpReward: 25,
-        emoji: '🐛',
+        assetPath: '🐛',
         color: const Color(0xFF66BB6A),
         questions: const [
           QuizQuestion(
@@ -77,7 +77,7 @@ List<GameRegion> get gameRegions => [
         name: 'NullPointer',
         maxHp: 70,
         xpReward: 45,
-        emoji: '👻',
+        assetPath: '👻',
         color: const Color(0xFFB0BEC5),
         questions: const [
           QuizQuestion(
@@ -127,7 +127,7 @@ List<GameRegion> get gameRegions => [
         name: 'Loop Infinito',
         maxHp: 80,
         xpReward: 55,
-        emoji: '🔄',
+        assetPath: '🔄',
         color: const Color(0xFF42A5F5),
         questions: const [
           QuizQuestion(
@@ -161,7 +161,7 @@ List<GameRegion> get gameRegions => [
         name: 'Recursão Selvagem',
         maxHp: 100,
         xpReward: 70,
-        emoji: '🌀',
+        assetPath: '🌀',
         color: const Color(0xFF7E57C2),
         questions: const [
           QuizQuestion(
@@ -212,7 +212,7 @@ List<GameRegion> get gameRegions => [
         name: 'SQL Injection',
         maxHp: 100,
         xpReward: 70,
-        emoji: '💉',
+        assetPath: '💉',
         color: const Color(0xFFEF5350),
         questions: const [
           QuizQuestion(
@@ -247,7 +247,7 @@ List<GameRegion> get gameRegions => [
         name: 'DeadLock',
         maxHp: 130,
         xpReward: 90,
-        emoji: '🔒',
+        assetPath: '🔒',
         color: const Color(0xFFFF7043),
         questions: const [
           QuizQuestion(
@@ -302,7 +302,7 @@ List<GameRegion> get gameRegions => [
         name: 'Vírus de Rede',
         maxHp: 120,
         xpReward: 85,
-        emoji: '🦠',
+        assetPath: '../../assets/images/virus-rede.png',
         color: const Color(0xFFEF9A9A),
         questions: const [
           QuizQuestion(
@@ -341,7 +341,7 @@ List<GameRegion> get gameRegions => [
         name: 'Firewall Corrompido',
         maxHp: 160,
         xpReward: 110,
-        emoji: '🛡️',
+        assetPath: '../../assets/images/firewall-corrompido.png',
         color: const Color(0xFFFFA726),
         questions: const [
           QuizQuestion(
@@ -396,7 +396,7 @@ List<GameRegion> get gameRegions => [
         name: 'Neural Network',
         maxHp: 150,
         xpReward: 110,
-        emoji: '🧠',
+        assetPath: '../../asstes/images/neural-network.png',
         color: const Color(0xFFCE93D8),
         questions: const [
           QuizQuestion(
@@ -413,11 +413,11 @@ List<GameRegion> get gameRegions => [
             question: 'O que é overfitting em ML?',
             options: [
               'Modelo muito simples para os dados',
-              'Modelo excessivamente ajustado ao treino perdendo generalização',
-              'Falta de dados de treinamento',
               'Erro de hardware na GPU',
+              'Falta de dados de treinamento',
+              'Modelo excessivamente ajustado ao treino perdendo generalização',
             ],
-            correctIndex: 1,
+            correctIndex: 3,
           ),
           QuizQuestion(
             question: 'O que faz uma função de ativação em redes neurais?',
@@ -435,7 +435,7 @@ List<GameRegion> get gameRegions => [
         name: 'GUARDIÃO FINAL',
         maxHp: 250,
         xpReward: 250,
-        emoji: '👁️',
+        assetPath: '../../assets/images/guardiao-final.png',
         color: const Color(0xFFAB47BC),
         questions: const [
           QuizQuestion(

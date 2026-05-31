@@ -32,16 +32,24 @@ class CombatTrainingScreen extends StatelessWidget {
                     onTap: () => Navigator.pop(context),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       decoration: ffBox(
-                          borderColor: kGoldDark, bgColor: kDarkBlue),
+                        borderColor: kGoldDark,
+                        bgColor: kDarkBlue,
+                      ),
                       child: const Row(
                         children: [
-                          Icon(Icons.arrow_back_ios,
-                              color: kGoldDark, size: 13),
-                          Text('Voltar',
-                              style: TextStyle(
-                                  color: kGoldDark, fontSize: 12)),
+                          Icon(
+                            Icons.arrow_back_ios,
+                            color: kGoldDark,
+                            size: 13,
+                          ),
+                          Text(
+                            'Voltar',
+                            style: TextStyle(color: kGoldDark, fontSize: 12),
+                          ),
                         ],
                       ),
                     ),
@@ -66,8 +74,9 @@ class CombatTrainingScreen extends StatelessWidget {
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(12),
               decoration: ffBox(
-                  borderColor: kGoldDark,
-                  bgColor: kGold.withValues(alpha: 0.06)),
+                borderColor: kGoldDark,
+                bgColor: kGold.withValues(alpha: 0.06),
+              ),
               child: Row(
                 children: [
                   const Text('📖', style: TextStyle(fontSize: 20)),
@@ -92,7 +101,9 @@ class CombatTrainingScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: FfCornerBox(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 8),
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 child: Row(
                   children: [
                     const Text('🧙', style: TextStyle(fontSize: 20)),
@@ -104,9 +115,10 @@ class CombatTrainingScreen extends StatelessWidget {
                           Text(
                             game.player.name,
                             style: const TextStyle(
-                                color: kGoldLight,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13),
+                              color: kGoldLight,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
                           ),
                           FfBar(
                             label: 'HP',
@@ -121,16 +133,20 @@ class CombatTrainingScreen extends StatelessWidget {
                     const SizedBox(width: 12),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      decoration: ffBox(
-                          borderColor: kGold, bgColor: kNavy),
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: ffBox(borderColor: kGold, bgColor: kNavy),
                       child: Column(
                         children: [
-                          const Text('LV',
-                              style: TextStyle(
-                                  color: kGoldDark,
-                                  fontSize: 8,
-                                  letterSpacing: 1)),
+                          const Text(
+                            'LV',
+                            style: TextStyle(
+                              color: kGoldDark,
+                              fontSize: 8,
+                              letterSpacing: 1,
+                            ),
+                          ),
                           Text(
                             '${game.player.level}',
                             style: const TextStyle(
@@ -180,18 +196,25 @@ class CombatTrainingScreen extends StatelessWidget {
   }
 
   void _startTraining(
-      BuildContext context, GameController game, int regionIndex) {
+    BuildContext context,
+    GameController game,
+    int regionIndex,
+  ) {
     game.enterRegion(regionIndex);
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => GameScreen(playerName: playerName),
-      ),
+      MaterialPageRoute(builder: (_) => GameScreen(playerName: playerName)),
     );
   }
 
   String _difficulty(int index) {
-    const levels = ['Iniciante', 'Intermediário', 'Avançado', 'Expert', 'Lendário'];
+    const levels = [
+      'Iniciante',
+      'Intermediário',
+      'Avançado',
+      'Expert',
+      'Lendário',
+    ];
     return levels[index];
   }
 }
@@ -231,12 +254,13 @@ class _TrainingRegionCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: region.primaryColor.withValues(alpha: 0.12),
                 border: Border(
-                    right: BorderSide(
-                        color: region.primaryColor.withValues(alpha: 0.4))),
+                  right: BorderSide(
+                    color: region.primaryColor.withValues(alpha: 0.4),
+                  ),
+                ),
               ),
               child: Center(
-                child: Text(region.emoji,
-                    style: const TextStyle(fontSize: 28)),
+                child: Text(region.emoji, style: const TextStyle(fontSize: 28)),
               ),
             ),
 
@@ -244,7 +268,9 @@ class _TrainingRegionCard extends StatelessWidget {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 10),
+                  horizontal: 12,
+                  vertical: 10,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -261,26 +287,33 @@ class _TrainingRegionCard extends StatelessWidget {
                         ),
                         const Spacer(),
                         _DifficultyChip(
-                            label: difficulty,
-                            color: region.primaryColor),
+                          label: difficulty,
+                          color: region.primaryColor,
+                        ),
                       ],
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '${region.enemies.length} inimigos  •  até ${_maxXp(region)} XP',
                       style: const TextStyle(
-                          color: kParchmentDim, fontSize: 11),
+                        color: kParchmentDim,
+                        fontSize: 11,
+                      ),
                     ),
                     const SizedBox(height: 6),
                     // Inimigos em linha
                     Row(
                       children: region.enemies
-                          .map((e) => Padding(
-                                padding: const EdgeInsets.only(right: 4),
-                                child: Text(e.emoji,
-                                    style:
-                                        const TextStyle(fontSize: 16)),
-                              ))
+                          .map(
+                            (e) => Padding(
+                              padding: const EdgeInsets.only(right: 4),
+                              child: Image.asset(
+                                e.assetPath,
+                                width: 64,
+                                height: 64,
+                              ),
+                            ),
+                          )
                           .toList(),
                     ),
                   ],
@@ -291,8 +324,11 @@ class _TrainingRegionCard extends StatelessWidget {
             // Seta
             Padding(
               padding: const EdgeInsets.only(right: 12),
-              child: Icon(Icons.play_arrow,
-                  color: region.primaryColor, size: 22),
+              child: Icon(
+                Icons.play_arrow,
+                color: region.primaryColor,
+                size: 22,
+              ),
             ),
           ],
         ),
