@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import '../controllers/game_controller.dart';
 import '../theme/game_theme.dart';
@@ -20,6 +21,10 @@ class _HomeScreenState extends State<HomeScreen> {
   final _formKey = GlobalKey<FormState>();
   bool carregando = false;
 
+  // Web client ID do android/app/google-services.json (client_type: 3).
+  static const String _googleServerClientId =
+      '258099890778-nqf0a81grrpqplmuvevlia8eve9vdses.apps.googleusercontent.com';
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -39,6 +44,8 @@ class _HomeScreenState extends State<HomeScreen> {
       await FirebaseFirestore.instance.collection('jogadores').doc(uid).set({
         'nome': nome,
         'xp': 0,
+        'hp': 100,
+        'maxHp': 100,
         'level': 1,
         'progresso': {
           'h15': 0,
@@ -91,29 +98,35 @@ class _HomeScreenState extends State<HomeScreen> {
   // Login Google
   // ─────────────────────────────────────────────
   Future<void> _entrarComGoogle() async {
-    if (!_formKey.currentState!.validate()) return;
-
     setState(() => carregando = true);
 
     try {
-      final nome = _nameController.text.trim();
+      final typedName = _nameController.text.trim();
+      final userCredential = await _signInWithGoogle();
+      final user = userCredential.user;
 
-      final googleSignIn = GoogleSignIn.instance;
-      await googleSignIn.initialize();
-      final googleUser = await googleSignIn.authenticate();
-      final googleAuth = googleUser.authentication;
+      if (user == null) {
+        throw FirebaseAuthException(
+          code: 'google-user-null',
+          message: 'Google não retornou um usuário.',
+        );
+      }
 
-      final credential = GoogleAuthProvider.credential(
-        idToken: googleAuth.idToken,
-      );
+      final nome = typedName.isNotEmpty
+          ? typedName
+          : (user.displayName?.trim().isNotEmpty == true
+                ? user.displayName!.trim()
+                : 'Jogador');
 
-      final userCredential = await FirebaseAuth.instance.signInWithCredential(
-        credential,
-      );
-
-      final uid = userCredential.user!.uid;
-      await _criarJogadorSeNaoExistir(uid, nome);
+      await _criarJogadorSeNaoExistir(user.uid, nome);
       _navegarParaMapa(nome);
+    } on FirebaseAuthException catch (e) {
+      debugPrint('Erro Google Login (${e.code}): ${e.message}');
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(_mensagemErroGoogle(e))));
+      }
     } catch (e) {
       debugPrint('Erro Google Login: $e');
       if (mounted) {
@@ -124,6 +137,53 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     if (mounted) setState(() => carregando = false);
+  }
+
+  Future<UserCredential> _signInWithGoogle() async {
+    final provider = GoogleAuthProvider()
+      ..addScope('email')
+      ..addScope('profile');
+
+    if (kIsWeb) {
+      return FirebaseAuth.instance.signInWithPopup(provider);
+    }
+
+    if (defaultTargetPlatform == TargetPlatform.windows) {
+      return FirebaseAuth.instance.signInWithProvider(provider);
+    }
+
+    final googleSignIn = GoogleSignIn.instance;
+    await googleSignIn.initialize(serverClientId: _googleServerClientId);
+
+    if (!googleSignIn.supportsAuthenticate()) {
+      return FirebaseAuth.instance.signInWithProvider(provider);
+    }
+
+    final googleUser = await googleSignIn.authenticate();
+    final googleAuth = googleUser.authentication;
+
+    final credential = GoogleAuthProvider.credential(
+      idToken: googleAuth.idToken,
+    );
+
+    return FirebaseAuth.instance.signInWithCredential(credential);
+  }
+
+  String _mensagemErroGoogle(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'popup-closed-by-user':
+      case 'canceled':
+      case 'sign_in_canceled':
+        return 'Login com Google cancelado';
+      case 'account-exists-with-different-credential':
+        return 'Já existe uma conta com outro método de login';
+      case 'operation-not-allowed':
+        return 'Ative o provedor Google no Firebase Authentication';
+      case 'network-request-failed':
+        return 'Falha de conexão ao entrar com Google';
+      default:
+        return e.message ?? 'Erro ao entrar com Google';
+    }
   }
 
   @override

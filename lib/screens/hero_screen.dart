@@ -5,6 +5,8 @@ import '../theme/game_theme.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../models/player.dart';
+
 class HeroScreen extends StatelessWidget {
   const HeroScreen({super.key});
 
@@ -12,8 +14,11 @@ class HeroScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final uid = FirebaseAuth.instance.currentUser!.uid;
 
-    return FutureBuilder<DocumentSnapshot>(
-      future: FirebaseFirestore.instance.collection('jogadores').doc(uid).get(),
+    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+      stream: FirebaseFirestore.instance
+          .collection('jogadores')
+          .doc(uid)
+          .snapshots(),
       builder: (context, snapshot) {
         // Loading
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -40,14 +45,24 @@ class HeroScreen extends StatelessWidget {
           );
         }
 
-        final data = snapshot.data!.data() as Map<String, dynamic>;
+        final data = snapshot.data!.data();
+        if (data == null) {
+          return const Center(
+            child: Text(
+              'Dados do jogador vazios',
+              style: TextStyle(color: Colors.white),
+            ),
+          );
+        }
 
         // Dados do jogador
-        final nome = data['nome'] ?? 'Jogador';
-        final xp = (data['xp'] ?? 0) as int;
-
-        final level = (data['level'] ?? 1) as int;
-        final progresso = (data['progresso'] as Map<String, dynamic>?) ?? {};
+        final player = Player.fromFirestore(Map<String, dynamic>.from(data));
+        final nome = player.name.isEmpty ? 'Jogador' : player.name;
+        final xp = player.xp;
+        final hp = player.hp;
+        final maxHp = player.maxHp;
+        final level = player.level;
+        final progresso = player.progresso;
 
         // Regiões completas
         int regioesConcluidas = 0;
@@ -69,10 +84,6 @@ class HeroScreen extends StatelessWidget {
         }
         // Status
         final xpNext = level * 100;
-
-        final hp = 100 + (level * 20);
-
-        final maxHp = 100 + (level * 20);
 
         final xpRestante = (xpNext - xp).clamp(0, 999999).toInt();
 

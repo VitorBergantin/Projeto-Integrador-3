@@ -454,6 +454,7 @@ class _CombatView extends StatelessWidget {
             enemyHp: enemy.hp,
             enemyMaxHp: enemy.maxHp,
             playerName: game.player.name,
+            playerLevel: game.player.level,
             playerHp: game.player.hp,
             playerMaxHp: game.player.maxHp,
             hitEnemy: answerResult == true,
@@ -581,6 +582,7 @@ class _MonsterBattleStage extends StatelessWidget {
   final int enemyHp;
   final int enemyMaxHp;
   final String playerName;
+  final int playerLevel;
   final int playerHp;
   final int playerMaxHp;
   final bool hitEnemy;
@@ -595,6 +597,7 @@ class _MonsterBattleStage extends StatelessWidget {
     required this.enemyHp,
     required this.enemyMaxHp,
     required this.playerName,
+    required this.playerLevel,
     required this.playerHp,
     required this.playerMaxHp,
     required this.hitEnemy,
@@ -651,7 +654,7 @@ class _MonsterBattleStage extends StatelessWidget {
             bottom: 10,
             child: _BattleHpPanel(
               name: playerName.isEmpty ? 'VINI' : playerName,
-              level: 5,
+              level: playerLevel,
               hp: playerHp,
               maxHp: playerMaxHp,
               alignRight: true,

@@ -17,7 +17,8 @@ enum GameState {
 }
 
 class GameController extends ChangeNotifier {
-StreamSubscription<DocumentSnapshot>? _playerSubscription;
+  StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>?
+  _playerSubscription;
 
   Player player = Player(name: '');
   GameState _state = GameState.cutscene;
@@ -28,6 +29,7 @@ StreamSubscription<DocumentSnapshot>? _playerSubscription;
   bool _leveledUp = false;
   bool _answerLocked = false;
   bool _singleEncounterMode = false;
+  bool _loadingPlayer = false;
 
   GameState get state => _state;
   int get cutsceneLine => _cutsceneLine;
@@ -36,6 +38,7 @@ StreamSubscription<DocumentSnapshot>? _playerSubscription;
   bool get leveledUp => _leveledUp;
   bool get answerLocked => _answerLocked;
   bool get singleEncounterMode => _singleEncounterMode;
+  bool get loadingPlayer => _loadingPlayer;
 
   GameRegion get currentRegion =>
       gameRegions[_clampedRegionIndex(player.currentRegion)];
@@ -50,6 +53,14 @@ StreamSubscription<DocumentSnapshot>? _playerSubscription;
     'capela': 4,
   };
 
+  static const Map<int, String> _regionToAmbiente = {
+    0: 'refeitorio',
+    1: 'h15',
+    2: 'manacas',
+    3: 'biblioteca',
+    4: 'capela',
+  };
+
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   static int? regionIndexForAmbiente(String ambId) => _ambienteToRegion[ambId];
@@ -57,22 +68,52 @@ StreamSubscription<DocumentSnapshot>? _playerSubscription;
   int _clampedRegionIndex(int index) =>
       index.clamp(0, gameRegions.length - 1).toInt();
 
+  int _asInt(dynamic value, int fallback) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? fallback;
+    return fallback;
+  }
+
   void observarJogador() {
-    final uid = FirebaseAuth.instance.currentUser!.uid;
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null || _playerSubscription != null) return;
+
+    _loadingPlayer = true;
+    notifyListeners();
 
     _playerSubscription = _db
         .collection('jogadores')
         .doc(uid)
         .snapshots()
-        .listen((doc) {
-          if (!doc.exists) return;
+        .listen(
+          (doc) {
+            _loadingPlayer = false;
+            if (!doc.exists) return;
 
-          player = Player.fromFirestore(
-            doc.data() as Map<String, dynamic>,
-          );
+            final data = doc.data();
+            if (data == null) return;
 
-          notifyListeners();
-        });
+            final loadedPlayer = Player.fromFirestore(
+              Map<String, dynamic>.from(data),
+            );
+
+            if (!data.containsKey('currentRegion')) {
+              loadedPlayer.currentRegion = player.currentRegion;
+            }
+            if (!data.containsKey('hp')) {
+              loadedPlayer.hp = player.hp.clamp(1, loadedPlayer.maxHp);
+            }
+
+            player = loadedPlayer;
+
+            notifyListeners();
+          },
+          onError: (_) {
+            _loadingPlayer = false;
+            notifyListeners();
+          },
+        );
   }
 
   @override
@@ -81,25 +122,50 @@ StreamSubscription<DocumentSnapshot>? _playerSubscription;
     super.dispose();
   }
 
-  Future<void> salvarJogador() async {
-    final uid = FirebaseAuth.instance.currentUser!.uid;
+  Future<void> salvarJogador({bool incrementProgress = false}) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
 
-    await _db
-        .collection('jogadores')
-        .doc(uid)
-        .update({
-          'nome': player.name,
-          'xp': player.xp,
-          'level': player.level,
-        });
+    final ambienteId =
+        _regionToAmbiente[_clampedRegionIndex(player.currentRegion)];
+
+    await _db.runTransaction((transaction) async {
+      final docRef = _db.collection('jogadores').doc(uid);
+      final snapshot = await transaction.get(docRef);
+      final data = snapshot.data() ?? <String, dynamic>{};
+      final progresso = Map<String, dynamic>.from(
+        (data['progresso'] as Map<String, dynamic>?) ?? const {},
+      );
+
+      if (incrementProgress && ambienteId != null) {
+        progresso[ambienteId] = _asInt(progresso[ambienteId], 0) + 1;
+        player.progresso[ambienteId] = _asInt(progresso[ambienteId], 0);
+      }
+
+      transaction.set(docRef, {
+        ...player.toFirestore(),
+        'progresso': progresso,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    });
   }
 
- void init() {
+  void init([String? playerName, bool resetGame = true]) {
+    if (playerName != null && playerName.trim().isNotEmpty) {
+      player.name = playerName.trim();
+    }
+
     observarJogador();
 
-    _state = GameState.cutscene;
-    _cutsceneLine = 0;
-    _currentEnemyIndex = 0;
+    if (resetGame) {
+      _state = GameState.cutscene;
+      _cutsceneLine = 0;
+      _currentEnemyIndex = 0;
+      _lastAnswerCorrect = null;
+      _leveledUp = false;
+      _answerLocked = false;
+      _singleEncounterMode = false;
+    }
 
     notifyListeners();
   }
@@ -167,7 +233,7 @@ StreamSubscription<DocumentSnapshot>? _playerSubscription;
     _answerLocked = true;
     notifyListeners();
 
-    Future.delayed(const Duration(milliseconds: 1200), () {
+    Future.delayed(const Duration(milliseconds: 1200), () async {
       if (isCorrect) {
         _currentEnemy!.takeDamage(question.attackPower);
       } else {
@@ -183,7 +249,7 @@ StreamSubscription<DocumentSnapshot>? _playerSubscription;
 
       if (_currentEnemy!.isDefeated) {
         final leveled = player.gainXp(_currentEnemy!.xpReward);
-        await salvarJogador();
+        await salvarJogador(incrementProgress: true);
         _leveledUp = leveled;
         if (_singleEncounterMode) {
           _state = GameState.victory;

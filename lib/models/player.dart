@@ -66,7 +66,14 @@ class Player {
   }
 
   Map<String, dynamic> toFirestore() {
-    return {'nome': name, 'xp': xp, 'level': level, 'progresso': progresso};
+    return {
+      'nome': name,
+      'xp': xp,
+      'hp': hp,
+      'maxHp': maxHp,
+      'level': level,
+      'progresso': progresso,
+    };
   }
 
   int get xpToNextLevel => level * 100;
