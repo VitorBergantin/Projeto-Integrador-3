@@ -3,46 +3,47 @@ import '../models/ambiente.dart';
 const List<Ambiente> ambientesMock = [
   Ambiente(
     id: 'refeitorio',
-    nome: 'Refeitorio',
-    descricao: 'Aqui o monstro a matar é outro',
-    latitude: -22.833124103405574,
-    longitude: -47.05200105250982,
-    raioMetros: 25,
-  ),
-
-  Ambiente(
-    id: 'h15', 
-    nome: 'Predio H15',
-    descricao: 'Quantos numeros cabem em um quadro?',
-    latitude: -22.834113627704003, 
-    longitude: -47.05264580807759,
+    nome: 'Praça de Alimentação',
+    descricao: 'O primeiro território dominado. Lacaios vagam entre as mesas.',
+    latitude: -22.833049082834084,
+    longitude: -47.05201157932568,
     raioMetros: 35,
   ),
-
+  //-22.833049082834084, -47.05201157932568
   Ambiente(
-    id: 'manacas', 
-    nome: 'Manacas',
-    descricao: 'Todo mundo me olha estranho aqui',
-    latitude: -22.832337063438782, 
-    longitude: -47.05123902257974,
-    raioMetros: 30,
+    id: 'h15',
+    nome: 'Bloco H15',
+    descricao: 'Os corredores do saber. Algoritmos complexos te aguardam.',
+    latitude: -22.834079915312433,
+    longitude: -47.052641898454795,
+    raioMetros: 35,
   ),
-
+  // -22.834079915312433, -47.052641898454795
+  Ambiente(
+    id: 'manacas',
+    nome: 'Área dos Manacás',
+    descricao: 'A floresta de dados. Bancos relacionais dominam aqui.',
+    latitude: -22.832285223509633,
+    longitude: -47.05143490438363,
+    raioMetros: 40,
+  ),
+  // -22.832285223509633, -47.05143490438363
   Ambiente(
     id: 'biblioteca',
     nome: 'Biblioteca',
-    descricao: 'Preferiria que eles fossem bobinhos',
-    latitude: -22.83367505150562,
-    longitude: -47.05191964103428,
-    raioMetros: 30,
+    descricao: 'O templo do saber. Protocolos de rede te cercam.',
+    latitude: -22.83364302648726,
+    longitude: -47.051946652772784,
+    raioMetros: 40,
   ),
-
+  //-22.83364302648726, -47.051946652772784
   Ambiente(
     id: 'capela',
     nome: 'Capela',
-    descricao: '???',
-    latitude: -22.83283153742419,
-    longitude: -47.05074917789725,
-    raioMetros: 20,
+    descricao: 'O sanctum da IA. O guardião final te aguarda.',
+    latitude: -22.832853792346157,
+    longitude: -47.05082336070998,
+    raioMetros: 35,
   ),
+  //-22.832853792346157, -47.05082336070998
 ];

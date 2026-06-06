@@ -1,7 +1,7 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controllers/game_controller.dart';
-import '../models/game_region.dart';
 import '../theme/game_theme.dart';
 import '../widgets/dpad_widget.dart';
 import '../widgets/action_buttons_widget.dart';
@@ -16,6 +16,15 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<GameController>().init(widget.playerName, false);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kNavy,
@@ -24,16 +33,14 @@ class _GameScreenState extends State<GameScreen> {
           builder: (context, game, _) {
             return Column(
               children: [
-                // ── Top bar ────────────────────────────────────────
                 _TopBar(game: game),
-
-                // ── Game viewport (tela do GameBoy) ───────────────
-                Expanded(
-                  flex: 60,
-                  child: _Viewport(game: game),
-                ),
-
-                // ── Brand label ────────────────────────────────────
+                if (game.loadingPlayer)
+                  const LinearProgressIndicator(
+                    minHeight: 2,
+                    color: kGold,
+                    backgroundColor: kDarkBlue,
+                  ),
+                Expanded(flex: 60, child: _Viewport(game: game)),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 5),
                   child: Row(
@@ -55,12 +62,7 @@ class _GameScreenState extends State<GameScreen> {
                     ],
                   ),
                 ),
-
-                // ── Controls ───────────────────────────────────────
-                Expanded(
-                  flex: 38,
-                  child: _Controls(game: game),
-                ),
+                Expanded(flex: 38, child: _Controls(game: game)),
               ],
             );
           },
@@ -70,18 +72,12 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Widget _goldDot() => Container(
-        width: 5,
-        height: 5,
-        decoration: const BoxDecoration(
-          shape: BoxShape.circle,
-          color: kGoldDark,
-        ),
-      );
+    width: 5,
+    height: 5,
+    decoration: const BoxDecoration(shape: BoxShape.circle, color: kGoldDark),
+  );
 }
 
-// ═══════════════════════════════════════════════════════════════
-// TOP BAR
-// ═══════════════════════════════════════════════════════════════
 class _TopBar extends StatelessWidget {
   final GameController game;
   const _TopBar({required this.game});
@@ -96,7 +92,6 @@ class _TopBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Back to map
           GestureDetector(
             onTap: () => Navigator.of(context).pop(),
             child: Container(
@@ -106,8 +101,10 @@ class _TopBar extends StatelessWidget {
                 children: [
                   Icon(Icons.map_outlined, color: kGoldDark, size: 14),
                   SizedBox(width: 4),
-                  Text('Mapa',
-                      style: TextStyle(color: kGoldDark, fontSize: 11)),
+                  Text(
+                    'Mapa',
+                    style: TextStyle(color: kGoldDark, fontSize: 11),
+                  ),
                 ],
               ),
             ),
@@ -136,14 +133,19 @@ class _TopBar extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          // Level badge
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: ffBox(borderColor: kGold, bgColor: kNavy),
             child: Column(
               children: [
-                const Text('LV',
-                    style: TextStyle(color: kGoldDark, fontSize: 8, letterSpacing: 1)),
+                const Text(
+                  'LV',
+                  style: TextStyle(
+                    color: kGoldDark,
+                    fontSize: 8,
+                    letterSpacing: 1,
+                  ),
+                ),
                 Text(
                   '${player.level}',
                   style: const TextStyle(
@@ -161,9 +163,6 @@ class _TopBar extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// VIEWPORT (tela do GameBoy com borda dourada)
-// ═══════════════════════════════════════════════════════════════
 class _Viewport extends StatelessWidget {
   final GameController game;
   const _Viewport({required this.game});
@@ -205,9 +204,6 @@ class _Viewport extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// CUTSCENE  — estilo Final Fantasy (caixa de diálogo inferior)
-// ═══════════════════════════════════════════════════════════════
 class _CutsceneView extends StatelessWidget {
   final GameController game;
   const _CutsceneView({required this.game});
@@ -222,7 +218,6 @@ class _CutsceneView extends StatelessWidget {
       onTap: game.advanceCutscene,
       child: Stack(
         children: [
-          // Fundo: cor da região
           Container(
             color: region.backgroundColor,
             child: Center(
@@ -243,8 +238,6 @@ class _CutsceneView extends StatelessWidget {
               ),
             ),
           ),
-
-          // Caixa de diálogo estilo FF (parte inferior)
           Positioned(
             bottom: 0,
             left: 0,
@@ -259,10 +252,11 @@ class _CutsceneView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Speaker label
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 3),
+                      horizontal: 10,
+                      vertical: 3,
+                    ),
                     decoration: ffBox(borderColor: kGold, bgColor: kDarkBlue),
                     child: Text(
                       region.name.toUpperCase(),
@@ -280,20 +274,16 @@ class _CutsceneView extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Progress dots
                       Row(
                         children: List.generate(
                           region.cutsceneLines.length,
                           (i) => Container(
-                            margin:
-                                const EdgeInsets.symmetric(horizontal: 2),
+                            margin: const EdgeInsets.symmetric(horizontal: 2),
                             width: 6,
                             height: 6,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: i <= game.cutsceneLine
-                                  ? kGold
-                                  : kBorder,
+                              color: i <= game.cutsceneLine ? kGold : kBorder,
                             ),
                           ),
                         ),
@@ -303,16 +293,20 @@ class _CutsceneView extends StatelessWidget {
                           if (!isLast)
                             GestureDetector(
                               onTap: game.skipCutscene,
-                              child: const Text('PULAR',
-                                  style: TextStyle(
-                                      color: kParchmentDim,
-                                      fontSize: 10,
-                                      letterSpacing: 1.5)),
+                              child: const Text(
+                                'PULAR',
+                                style: TextStyle(
+                                  color: kParchmentDim,
+                                  fontSize: 10,
+                                  letterSpacing: 1.5,
+                                ),
+                              ),
                             ),
                           const SizedBox(width: 12),
-                          const Text('▼',
-                              style:
-                                  TextStyle(color: kGold, fontSize: 12)),
+                          const Text(
+                            '▼',
+                            style: TextStyle(color: kGold, fontSize: 12),
+                          ),
                         ],
                       ),
                     ],
@@ -327,9 +321,6 @@ class _CutsceneView extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// EXPLORE VIEW
-// ═══════════════════════════════════════════════════════════════
 class _ExploreView extends StatelessWidget {
   final GameController game;
   const _ExploreView({required this.game});
@@ -342,14 +333,12 @@ class _ExploreView extends StatelessWidget {
       color: region.backgroundColor,
       child: Stack(
         children: [
-          // Paisagem / cenário da região
           Positioned.fill(
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(region.emoji,
-                      style: const TextStyle(fontSize: 60)),
+                  Text(region.emoji, style: const TextStyle(fontSize: 60)),
                   const SizedBox(height: 4),
                   Text(
                     region.name.toUpperCase(),
@@ -363,8 +352,6 @@ class _ExploreView extends StatelessWidget {
               ),
             ),
           ),
-
-          // Painel inferior de exploração
           Positioned(
             bottom: 0,
             left: 0,
@@ -379,18 +366,18 @@ class _ExploreView extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(region.description,
-                      style: kBodyStyle.copyWith(fontSize: 12)),
+                  Text(
+                    region.description,
+                    style: kBodyStyle.copyWith(fontSize: 12),
+                  ),
                   const SizedBox(height: 10),
                   Row(
                     children: [
-                      // Batalhar
                       Expanded(
                         child: GestureDetector(
                           onTap: game.startBattle,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 10),
+                            padding: const EdgeInsets.symmetric(vertical: 10),
                             decoration: ffBox(
                               borderColor: kGold,
                               bgColor: kGold.withValues(alpha: 0.1),
@@ -398,8 +385,7 @@ class _ExploreView extends StatelessWidget {
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text('⚔️',
-                                    style: TextStyle(fontSize: 16)),
+                                Text('⚔️', style: TextStyle(fontSize: 16)),
                                 SizedBox(width: 8),
                                 Text(
                                   'BATALHAR',
@@ -416,19 +402,21 @@ class _ExploreView extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      // Curar
                       GestureDetector(
                         onTap: game.healPlayer,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 14),
+                            vertical: 10,
+                            horizontal: 14,
+                          ),
                           decoration: ffBox(
                             borderColor: kGreenHPLight,
-                            bgColor:
-                                kGreenHP.withValues(alpha: 0.1),
+                            bgColor: kGreenHP.withValues(alpha: 0.1),
                           ),
-                          child: const Text('💊',
-                              style: TextStyle(fontSize: 18)),
+                          child: const Text(
+                            '💊',
+                            style: TextStyle(fontSize: 18),
+                          ),
                         ),
                       ),
                     ],
@@ -443,9 +431,6 @@ class _ExploreView extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// COMBAT VIEW  — estilo FF com pergunta + opções
-// ═══════════════════════════════════════════════════════════════
 class _CombatView extends StatelessWidget {
   final GameController game;
   const _CombatView({required this.game});
@@ -459,92 +444,34 @@ class _CombatView extends StatelessWidget {
 
     return Column(
       children: [
-        // ── Seção do inimigo ──────────────────────────────
         Expanded(
-          flex: 35,
-          child: Container(
-            color: region.backgroundColor,
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Sprite do inimigo
-                Container(
-                  width: 70,
-                  height: 70,
-                  decoration: ffBox(
-                      borderColor: enemy.color,
-                      bgColor: kNavy),
-                  child: Center(
-                    child: Text(enemy.emoji,
-                        style: const TextStyle(fontSize: 38)),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                // Stats do inimigo
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        enemy.name.toUpperCase(),
-                        style: TextStyle(
-                          color: enemy.color,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      FfBar(
-                        label: 'HP',
-                        current: enemy.hp,
-                        max: enemy.maxHp,
-                        color: kCrimson,
-                        lightColor: kCrimsonLight,
-                      ),
-                      const SizedBox(height: 8),
-                      // Feedback da resposta
-                      if (answerResult != null)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: ffBox(
-                            borderColor: answerResult
-                                ? kGreenHPLight
-                                : kCrimsonLight,
-                            bgColor: answerResult
-                                ? kGreenHP.withValues(alpha: 0.2)
-                                : kCrimson.withValues(alpha: 0.2),
-                          ),
-                          child: Text(
-                            answerResult
-                                ? '✦ Acerto! Ataque crítico!'
-                                : '✦ Errou! Tome o golpe!',
-                            style: TextStyle(
-                              color: answerResult
-                                  ? kGreenHPLight
-                                  : kCrimsonLight,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+          flex: 42,
+          child: _MonsterBattleStage(
+            regionColor: region.backgroundColor,
+            enemyName: enemy.name,
+            enemyEmoji: enemy.assetPath,
+            enemyColor: enemy.color,
+            enemyHp: enemy.hp,
+            enemyMaxHp: enemy.maxHp,
+            playerName: game.player.name,
+            playerLevel: game.player.level,
+            playerHp: game.player.hp,
+            playerMaxHp: game.player.maxHp,
+            hitEnemy: answerResult == true,
+            hitPlayer: answerResult == false,
+            feedback: answerResult == null
+                ? null
+                : answerResult
+                ? 'Resposta correta! Ataque certeiro!'
+                : 'Resposta errada! O inimigo contra-atacou!',
           ),
         ),
-
-        // ── Caixa de pergunta ─────────────────────────────
         Expanded(
           flex: 65,
           child: Container(
             color: kNavy,
             child: Column(
               children: [
-                // Pergunta (caixa de diálogo estilo FF)
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
@@ -557,18 +484,22 @@ class _CombatView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('❓ PERGUNTA',
-                          style: TextStyle(
-                              color: kGoldDark,
-                              fontSize: 9,
-                              letterSpacing: 2)),
+                      const Text(
+                        '❓ PERGUNTA',
+                        style: TextStyle(
+                          color: kGoldDark,
+                          fontSize: 9,
+                          letterSpacing: 2,
+                        ),
+                      ),
                       const SizedBox(height: 4),
-                      Text(question.question, style: kBodyStyle.copyWith(fontSize: 13)),
+                      Text(
+                        question.question,
+                        style: kBodyStyle.copyWith(fontSize: 13),
+                      ),
                     ],
                   ),
                 ),
-
-                // Opções de resposta
                 Expanded(
                   child: ListView.builder(
                     padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
@@ -578,8 +509,7 @@ class _CombatView extends StatelessWidget {
                       Color borderColor = kBorder;
                       Color bgColor = Colors.transparent;
 
-                      if (answerResult != null &&
-                          i == question.correctIndex) {
+                      if (answerResult != null && i == question.correctIndex) {
                         borderColor = kGreenHPLight;
                         bgColor = kGreenHP.withValues(alpha: 0.15);
                       }
@@ -591,9 +521,13 @@ class _CombatView extends StatelessWidget {
                         child: Container(
                           margin: const EdgeInsets.only(bottom: 6),
                           padding: const EdgeInsets.symmetric(
-                              vertical: 9, horizontal: 12),
+                            vertical: 9,
+                            horizontal: 12,
+                          ),
                           decoration: ffBox(
-                              borderColor: borderColor, bgColor: bgColor),
+                            borderColor: borderColor,
+                            bgColor: bgColor,
+                          ),
                           child: Row(
                             children: [
                               Container(
@@ -619,7 +553,9 @@ class _CombatView extends StatelessWidget {
                                 child: Text(
                                   question.options[i],
                                   style: const TextStyle(
-                                      color: kParchment, fontSize: 12),
+                                    color: kParchment,
+                                    fontSize: 12,
+                                  ),
                                 ),
                               ),
                             ],
@@ -638,9 +574,415 @@ class _CombatView extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// VICTORY
-// ═══════════════════════════════════════════════════════════════
+class _MonsterBattleStage extends StatelessWidget {
+  final Color regionColor;
+  final String enemyName;
+  final String enemyEmoji;
+  final Color enemyColor;
+  final int enemyHp;
+  final int enemyMaxHp;
+  final String playerName;
+  final int playerLevel;
+  final int playerHp;
+  final int playerMaxHp;
+  final bool hitEnemy;
+  final bool hitPlayer;
+  final String? feedback;
+
+  const _MonsterBattleStage({
+    required this.regionColor,
+    required this.enemyName,
+    required this.enemyEmoji,
+    required this.enemyColor,
+    required this.enemyHp,
+    required this.enemyMaxHp,
+    required this.playerName,
+    required this.playerLevel,
+    required this.playerHp,
+    required this.playerMaxHp,
+    required this.hitEnemy,
+    required this.hitPlayer,
+    required this.feedback,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: regionColor,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: CustomPaint(painter: _BattleBackdropPainter()),
+          ),
+          Positioned(
+            top: 9,
+            left: 10,
+            child: _BattleHpPanel(
+              name: enemyName,
+              level: 5,
+              hp: enemyHp,
+              maxHp: enemyMaxHp,
+              alignRight: false,
+            ),
+          ),
+          Positioned(
+            top: 35,
+            right: 22,
+            child: _BattleSprite(
+              key: ValueKey('enemy-$hitEnemy-$enemyHp'),
+              label: enemyName,
+              emoji: enemyEmoji,
+              color: enemyColor,
+              hit: hitEnemy,
+              backView: false,
+            ),
+          ),
+          Positioned(
+            left: 20,
+            bottom: 28,
+            child: _BattleSprite(
+              key: ValueKey('player-$hitPlayer-$playerHp'),
+              label: playerName,
+              emoji: '🧙',
+              color: kGold,
+              hit: hitPlayer,
+              backView: true,
+            ),
+          ),
+          Positioned(
+            right: 10,
+            bottom: 10,
+            child: _BattleHpPanel(
+              name: playerName.isEmpty ? 'VINI' : playerName,
+              level: playerLevel,
+              hp: playerHp,
+              maxHp: playerMaxHp,
+              alignRight: true,
+              showNumbers: true,
+            ),
+          ),
+          if (feedback != null)
+            Positioned(
+              left: 10,
+              right: 10,
+              bottom: 2,
+              child: IgnorePointer(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: kNavy.withValues(alpha: 0.82),
+                    border: Border.all(
+                      color: hitEnemy ? kGreenHPLight : kCrimsonLight,
+                    ),
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                  child: Text(
+                    feedback!,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: hitEnemy ? kGreenHPLight : kCrimsonLight,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BattleSprite extends StatelessWidget {
+  final String label;
+  final String emoji;
+  final Color color;
+  final bool hit;
+  final bool backView;
+
+  const _BattleSprite({
+    super.key,
+    required this.label,
+    required this.emoji,
+    required this.color,
+    required this.hit,
+    required this.backView,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: hit ? 1 : 0),
+      duration: const Duration(milliseconds: 360),
+      curve: Curves.easeOutBack,
+      builder: (context, value, child) {
+        final shake = hit ? sin(value * pi * 5) * 8 : 0.0;
+        final lift = hit ? -sin(value * pi) * 5 : 0.0;
+        final flashOpacity = hit ? (1 - value).clamp(0.0, 1.0) : 0.0;
+
+        return Transform.translate(
+          offset: Offset(shake, lift),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Transform.translate(
+                offset: const Offset(0, 42),
+                child: Container(
+                  width: backView ? 116 : 104,
+                  height: backView ? 28 : 22,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(100),
+                    border: Border.all(color: Colors.white24),
+                  ),
+                ),
+              ),
+              Container(
+                width: backView ? 104 : 92,
+                height: backView ? 104 : 92,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: color.withValues(alpha: backView ? 0.16 : 0.12),
+                  border: Border.all(
+                    color: color.withValues(alpha: 0.35),
+                    width: 1.4,
+                  ),
+                ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Text(
+                      backView ? 'COSTAS' : 'FRENTE',
+                      style: TextStyle(
+                        color: color.withValues(alpha: 0.16),
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                    Text(
+                      backView ? '🧥' : emoji,
+                      style: TextStyle(
+                        fontSize: backView ? 48 : 44,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withValues(alpha: 0.45),
+                            offset: const Offset(0, 3),
+                            blurRadius: 4,
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (flashOpacity > 0)
+                      Positioned.fill(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: kCrimsonLight.withValues(
+                              alpha: 0.48 * flashOpacity,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              Positioned(
+                bottom: -8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: kNavy.withValues(alpha: 0.82),
+                    border: Border.all(color: color.withValues(alpha: 0.55)),
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                  child: Text(
+                    label.length > 14 ? '${label.substring(0, 14)}...' : label,
+                    style: TextStyle(
+                      color: color,
+                      fontSize: 8,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _BattleHpPanel extends StatelessWidget {
+  final String name;
+  final int level;
+  final int hp;
+  final int maxHp;
+  final bool alignRight;
+  final bool showNumbers;
+
+  const _BattleHpPanel({
+    required this.name,
+    required this.level,
+    required this.hp,
+    required this.maxHp,
+    required this.alignRight,
+    this.showNumbers = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final ratio = maxHp == 0 ? 0.0 : (hp / maxHp).clamp(0.0, 1.0);
+    final hpColor = ratio > 0.5
+        ? kGreenHPLight
+        : ratio > 0.25
+        ? kGold
+        : kCrimsonLight;
+
+    return Container(
+      width: 142,
+      padding: const EdgeInsets.fromLTRB(8, 5, 8, 6),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE8E0B8),
+        border: Border.all(color: const Color(0xFF2F3A2D), width: 2),
+        borderRadius: BorderRadius.only(
+          topLeft: const Radius.circular(3),
+          topRight: const Radius.circular(3),
+          bottomLeft: Radius.circular(alignRight ? 14 : 3),
+          bottomRight: Radius.circular(alignRight ? 3 : 14),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.22),
+            offset: const Offset(2, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: alignRight
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Text(
+                  name.toUpperCase(),
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Color(0xFF273025),
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1,
+                  ),
+                ),
+              ),
+              Text(
+                'Lv$level',
+                style: const TextStyle(
+                  color: Color(0xFF273025),
+                  fontSize: 9,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 3),
+          Row(
+            children: [
+              const Text(
+                'HP',
+                style: TextStyle(
+                  color: Color(0xFFB58A1C),
+                  fontSize: 8,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Container(
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF273025),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: const EdgeInsets.all(1),
+                  child: FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: ratio,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: hpColor,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (showNumbers) ...[
+            const SizedBox(height: 2),
+            Text(
+              '$hp / $maxHp',
+              style: const TextStyle(
+                color: Color(0xFF273025),
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _BattleBackdropPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final stripePaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.07)
+      ..strokeWidth = 1;
+
+    for (double y = 8; y < size.height; y += 9) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), stripePaint);
+    }
+
+    final arenaPaint = Paint()..color = Colors.white.withValues(alpha: 0.12);
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: Offset(size.width * 0.73, size.height * 0.55),
+        width: size.width * 0.42,
+        height: 34,
+      ),
+      arenaPaint,
+    );
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: Offset(size.width * 0.28, size.height * 0.78),
+        width: size.width * 0.48,
+        height: 38,
+      ),
+      arenaPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
 class _VictoryView extends StatelessWidget {
   final GameController game;
   const _VictoryView({required this.game});
@@ -661,37 +1003,18 @@ class _VictoryView extends StatelessWidget {
                 const Text('⚔️', style: TextStyle(fontSize: 44)),
                 const SizedBox(height: 10),
                 const Text('VITÓRIA!', style: kTitleStyle),
-                const SizedBox(height: 6),
+                const SizedBox(height: 10),
                 Text(
-                  '+ ${game.currentEnemy?.xpReward ?? 0}  XP',
+                  '+${game.currentEnemy!.xpReward} XP',
                   style: const TextStyle(
-                      color: kGoldLight,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold),
-                ),
-                if (game.leveledUp) ...[
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 5),
-                    decoration: ffBox(
-                        borderColor: kGoldLight,
-                        bgColor:
-                            kGold.withValues(alpha: 0.1)),
-                    child: Text(
-                      '⬆  NÍVEL ${game.player.level}!',
-                      style: const TextStyle(
-                          color: kGoldLight,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13),
-                    ),
+                    color: kGold,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2,
                   ),
-                ],
-                const SizedBox(height: 16),
-                const Text(
-                  'Pressione  A  para continuar',
-                  style: kDimStyle,
                 ),
+                const SizedBox(height: 14),
+                const Text('[ A ] Continuar', style: kDimStyle),
               ],
             ),
           ),
@@ -701,17 +1024,15 @@ class _VictoryView extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// DEFEAT
-// ═══════════════════════════════════════════════════════════════
 class _DefeatView extends StatelessWidget {
   final GameController game;
   const _DefeatView({required this.game});
 
   @override
   Widget build(BuildContext context) {
+    final region = game.currentRegion;
     return Container(
-      color: kNavy,
+      color: region.backgroundColor,
       child: Center(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -723,40 +1044,22 @@ class _DefeatView extends StatelessWidget {
                 const Text('💀', style: TextStyle(fontSize: 44)),
                 const SizedBox(height: 10),
                 const Text(
-                  'DERROTA',
+                  'DERROTA!',
                   style: TextStyle(
                     color: kCrimsonLight,
-                    fontSize: 22,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    letterSpacing: 4,
+                    letterSpacing: 3,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 const Text(
-                  'Seus conhecimentos não\nforam suficientes...',
+                  'Você foi derrotado...',
                   textAlign: TextAlign.center,
                   style: kBodyStyle,
                 ),
-                const SizedBox(height: 16),
-                GestureDetector(
-                  onTap: game.restartAfterDefeat,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 10),
-                    decoration: ffBox(
-                        borderColor: kCrimsonLight,
-                        bgColor:
-                            kCrimson.withValues(alpha: 0.1)),
-                    child: const Text(
-                      '↺  TENTAR NOVAMENTE',
-                      style: TextStyle(
-                          color: kCrimsonLight,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.5,
-                          fontSize: 12),
-                    ),
-                  ),
-                ),
+                const SizedBox(height: 14),
+                const Text('[ A ] Voltar ao mapa', style: kDimStyle),
               ],
             ),
           ),
@@ -766,9 +1069,6 @@ class _DefeatView extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// REGION COMPLETE
-// ═══════════════════════════════════════════════════════════════
 class _RegionCompleteView extends StatelessWidget {
   final GameController game;
   const _RegionCompleteView({required this.game});
@@ -776,55 +1076,31 @@ class _RegionCompleteView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final region = game.currentRegion;
-    final nextIndex = game.player.currentRegion + 1;
-    final nextRegion = gameRegions[nextIndex];
-
     return Container(
-      color: kNavy,
+      color: region.backgroundColor,
       child: Center(
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: FfCornerBox(
+            borderColor: kGold,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(region.emoji, style: const TextStyle(fontSize: 44)),
-                const SizedBox(height: 8),
+                const Text('👑', style: TextStyle(fontSize: 44)),
+                const SizedBox(height: 10),
+                const Text('REGIÃO CONQUISTADA!', style: kTitleStyle),
+                const SizedBox(height: 10),
                 Text(
-                  '${region.name.toUpperCase()}\nCONCLUÍDA!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: region.primaryColor,
-                    fontSize: 15,
+                  region.name.toUpperCase(),
+                  style: const TextStyle(
+                    color: kGold,
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 2,
-                    height: 1.4,
                   ),
                 ),
                 const SizedBox(height: 14),
-                const Divider(color: kGoldDark),
-                const SizedBox(height: 10),
-                const Text('Próxima região:', style: kDimStyle),
-                const SizedBox(height: 6),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(nextRegion.emoji,
-                        style: const TextStyle(fontSize: 24)),
-                    const SizedBox(width: 8),
-                    Text(
-                      nextRegion.name.toUpperCase(),
-                      style: TextStyle(
-                        color: nextRegion.primaryColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                        letterSpacing: 2,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                const Text('Pressione  A  para avançar', style: kDimStyle),
+                const Text('[ A ] Continuar', style: kDimStyle),
               ],
             ),
           ),
@@ -834,9 +1110,6 @@ class _RegionCompleteView extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// GAME COMPLETE
-// ═══════════════════════════════════════════════════════════════
 class _GameCompleteView extends StatelessWidget {
   final GameController game;
   const _GameCompleteView({required this.game});
@@ -849,52 +1122,21 @@ class _GameCompleteView extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: FfCornerBox(
-            borderColor: kGoldLight,
+            borderColor: kGold,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('🏆', style: TextStyle(fontSize: 52)),
+                const Text('🎉', style: TextStyle(fontSize: 52)),
+                const SizedBox(height: 14),
+                const Text('JOGO COMPLETO!', style: kTitleStyle),
                 const SizedBox(height: 10),
-                const Text('A PUC FOI SALVA!', style: kTitleStyle),
-                const SizedBox(height: 6),
-                Text(
-                  'Herói: ${game.player.name}',
-                  style: const TextStyle(color: kParchment, fontSize: 14),
-                ),
-                Text(
-                  'Nível ${game.player.level}',
-                  style: const TextStyle(color: kGoldLight, fontSize: 13),
-                ),
-                const SizedBox(height: 12),
-                const Divider(color: kGoldDark),
-                const SizedBox(height: 8),
                 const Text(
-                  'Todas as 5 regiões do campus\nforam libertadas!\n\nSeu conhecimento triunfou!',
+                  'Você salvou a PUC!',
                   textAlign: TextAlign.center,
                   style: kBodyStyle,
                 ),
-                const SizedBox(height: 12),
-                const Text('⭐ ⭐ ⭐ ⭐ ⭐',
-                    style: TextStyle(fontSize: 22, letterSpacing: 6)),
-                const SizedBox(height: 12),
-                GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 10),
-                    decoration: ffBox(
-                        borderColor: kGold,
-                        bgColor:
-                            kGold.withValues(alpha: 0.1)),
-                    child: const Text(
-                      '🗺️  Voltar ao Mapa',
-                      style: TextStyle(
-                          color: kGold,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13),
-                    ),
-                  ),
-                ),
+                const SizedBox(height: 14),
+                const Text('[ A ] Voltar ao mapa', style: kDimStyle),
               ],
             ),
           ),
@@ -904,9 +1146,6 @@ class _GameCompleteView extends StatelessWidget {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// CONTROLS  — GameBoy com estética medieval
-// ═══════════════════════════════════════════════════════════════
 class _Controls extends StatelessWidget {
   final GameController game;
   const _Controls({required this.game});
@@ -918,6 +1157,9 @@ class _Controls extends StatelessWidget {
       case GameState.exploring:
         return game.startBattle;
       case GameState.victory:
+        if (game.singleEncounterMode) {
+          return () => Navigator.of(context).pop(true);
+        }
         return game.continueAfterVictory;
       case GameState.defeat:
         return game.restartAfterDefeat;
@@ -925,7 +1167,7 @@ class _Controls extends StatelessWidget {
         return game.moveToNextRegion;
       case GameState.gameComplete:
         return () => Navigator.of(context).pop();
-      default:
+      case GameState.combat:
         return null;
     }
   }
@@ -938,8 +1180,9 @@ class _Controls extends StatelessWidget {
       case GameState.victory:
       case GameState.defeat:
       case GameState.regionComplete:
+      case GameState.gameComplete:
         return () => Navigator.of(context).pop();
-      default:
+      case GameState.combat:
         return null;
     }
   }
@@ -950,21 +1193,17 @@ class _Controls extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 14),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          DPadWidget(),
+          const DPadWidget(),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+            children: const [
               _MiniButton(label: 'SELECT'),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               _MiniButton(label: 'START'),
             ],
           ),
-          ActionButtonsWidget(
-            onA: _onA(context),
-            onB: _onB(context),
-          ),
+          ActionButtonsWidget(onA: _onA(context), onB: _onB(context)),
         ],
       ),
     );
@@ -973,6 +1212,7 @@ class _Controls extends StatelessWidget {
 
 class _MiniButton extends StatelessWidget {
   final String label;
+
   const _MiniButton({required this.label});
 
   @override

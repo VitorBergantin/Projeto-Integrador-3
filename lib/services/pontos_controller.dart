@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import '../data/ambientes_mock.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
+import '../data/ambientes_mock.dart';
 import '../models/ambiente.dart';
 
 class PontosController extends ChangeNotifier {
@@ -10,9 +11,16 @@ class PontosController extends ChangeNotifier {
   String erro = '';
   bool loading = true;
   StreamSubscription<Position>? _positionStream;
+  List<Ambiente> ambientes = [];
+  String? pontoAtual;
 
   PontosController() {
-    getPosicao();
+    inicializar();
+  }
+
+  Future<void> inicializar() async {
+    await carregarAmbientes();
+    await getPosicao();
     monitoramento();
   }
 
@@ -22,19 +30,55 @@ class PontosController extends ChangeNotifier {
     super.dispose();
   }
 
+  Future<void> carregarAmbientes() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('ambientes')
+          .get();
+
+      ambientes = snapshot.docs
+          .map((doc) {
+            final data = doc.data();
+            return Ambiente.fromFirestore(data, documentId: doc.id);
+          })
+          .where(
+            (amb) =>
+                amb.id.isNotEmpty && amb.latitude != 0 && amb.longitude != 0,
+          )
+          .toList();
+
+      if (ambientes.isEmpty) {
+        ambientes = List<Ambiente>.from(ambientesMock);
+        erro = 'Nenhum ambiente valido no Firebase. Usando pontos locais.';
+      } else {
+        erro = '';
+      }
+    } catch (e) {
+      ambientes = List<Ambiente>.from(ambientesMock);
+      erro = 'Erro ao carregar ambientes. Usando pontos locais do campus.';
+      debugPrint(e.toString());
+    }
+
+    notifyListeners();
+  }
+
   Future<void> getPosicao() async {
     loading = true;
     notifyListeners();
 
     try {
       Position posicao = await _posicaoAtual();
+
       lati = posicao.latitude;
       long = posicao.longitude;
+      erro = '';
+      verificarProximidade();
     } catch (e) {
       erro = 'Erro ao obter localização';
     }
 
     loading = false;
+
     notifyListeners();
   }
 
@@ -48,39 +92,36 @@ class PontosController extends ChangeNotifier {
     }
 
     permissao = await Geolocator.checkPermission();
-    
+
     if (permissao == LocationPermission.denied) {
       permissao = await Geolocator.requestPermission();
 
       if (permissao == LocationPermission.denied) {
-        return Future.error('Precisamos que autorize acesso a localização');
+        return Future.error('Precisamos da localização');
       }
     }
 
     if (permissao == LocationPermission.deniedForever) {
-      return Future.error('Por favor, habilite a localização');
+      return Future.error('Permissão negada permanentemente');
     }
 
     return await Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(
-      accuracy: LocationAccuracy.high,
-      ),  
+      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
     );
   }
 
   void onEntrouNaArea(Ambiente amb) {
-    print("Entrou em ${amb.nome}");    //substituir por disparada de gameplay
+    debugPrint('Entrou em ${amb.nome}');
   }
 
   void onSaiuDaArea() {
-    print("Saiu da área");
+    debugPrint('Saiu da área');
   }
 
-  String? pontoAtual;
   Ambiente? ambienteAtual;
 
-  void verificarProximidade() {
-    for (var amb in ambientesMock) {
+  bool verificarProximidade() {
+    for (var amb in ambientes) {
       double distancia = Geolocator.distanceBetween(
         lati,
         long,
@@ -94,10 +135,10 @@ class PontosController extends ChangeNotifier {
           ambienteAtual = amb;
 
           onEntrouNaArea(amb);
-
           notifyListeners();
+          return true;
         }
-        return;
+        return false;
       }
     }
 
@@ -106,24 +147,33 @@ class PontosController extends ChangeNotifier {
       pontoAtual = null;
       ambienteAtual = null;
       notifyListeners();
+      return true;
     }
+
+    return false;
   }
 
   void atualizarLocalizacao(double novaLat, double novaLong) {
     lati = novaLat;
+
     long = novaLong;
 
-    verificarProximidade();
+    final mudouGeofence = verificarProximidade();
+    if (!mudouGeofence) {
+      notifyListeners();
+    }
   }
 
   void monitoramento() {
-    _positionStream = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 5,
-      ),
-    ).listen((Position position) {
-      atualizarLocalizacao(position.latitude, position.longitude);
-    });
+    _positionStream =
+        Geolocator.getPositionStream(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+
+            distanceFilter: 1,
+          ),
+        ).listen((Position position) {
+          atualizarLocalizacao(position.latitude, position.longitude);
+        });
   }
 }
