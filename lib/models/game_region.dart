@@ -24,7 +24,7 @@ class GameRegion {
   });
 }
 
-List<GameRegion> get gameRegions => [
+List<GameRegion> get gameRegions => [ 
   GameRegion(
     name: 'Praça de Alimentação',
     description:
