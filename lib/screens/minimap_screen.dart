@@ -171,7 +171,6 @@ class _RegionPin extends StatelessWidget {
   Widget build(BuildContext context) {
     final x = position.dx * size.width;
     final y = position.dy * size.height;
-    final icon = _emojiForAmbiente(ambiente.id);
     final color = active
         ? kGold
         : target
@@ -215,21 +214,20 @@ class _RegionPin extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(icon, style: const TextStyle(fontSize: 20)),
-              const SizedBox(height: 3),
               Text(
-                _shortName(ambiente.nome),
+                _shortName(ambiente.nome).toUpperCase(),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: color,
-                  fontSize: 8.5,
+                  fontSize: 10,
                   height: 1.1,
                   fontWeight: FontWeight.bold,
+                  letterSpacing: 0.4,
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               ClipRRect(
                 borderRadius: BorderRadius.circular(3),
                 child: LinearProgressIndicator(
@@ -526,23 +524,6 @@ String _objectiveText(CampaignController campaign, String target) {
     return 'Todos os chefes cairam. A Capela foi liberada.';
   }
   return 'Proximo objetivo: libertar $target.';
-}
-
-String _emojiForAmbiente(String id) {
-  switch (id) {
-    case 'refeitorio':
-      return '🍽️';
-    case 'h15':
-      return '🏛️';
-    case 'manacas':
-      return '🌳';
-    case 'biblioteca':
-      return '📚';
-    case 'capela':
-      return '⛪';
-    default:
-      return '📍';
-  }
 }
 
 String _shortName(String name) {

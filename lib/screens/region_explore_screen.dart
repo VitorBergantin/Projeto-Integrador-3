@@ -778,6 +778,10 @@ class _RegionIntroOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     final line = intro.dialogue[lineIndex];
     final leftActive = line.side == DialogueSide.left;
+    final activeName = line.actorName ?? line.speaker;
+    final activePortrait =
+        line.portrait ??
+        (leftActive ? intro.leftPortrait : intro.rightPortrait);
 
     return Stack(
       children: [
@@ -826,8 +830,8 @@ class _RegionIntroOverlay extends StatelessWidget {
           left: 4,
           bottom: 72,
           child: _PortraitActor(
-            name: intro.leftName,
-            portrait: intro.leftPortrait,
+            name: leftActive ? activeName : intro.leftName,
+            portrait: leftActive ? activePortrait : intro.leftPortrait,
             active: leftActive,
             alignRight: false,
           ),
@@ -836,8 +840,8 @@ class _RegionIntroOverlay extends StatelessWidget {
           right: 4,
           bottom: 72,
           child: _PortraitActor(
-            name: intro.rightName,
-            portrait: intro.rightPortrait,
+            name: leftActive ? intro.rightName : activeName,
+            portrait: leftActive ? intro.rightPortrait : activePortrait,
             active: !leftActive,
             alignRight: true,
           ),

@@ -412,52 +412,13 @@ List<GameRegion> get gameRegions => [
     backgroundColor: const Color(0xFF0F000F),
     cutsceneLines: const [
       'A Capela... o local mais sagrado do campus.',
-      'Aqui reside o guardião final: a Inteligência Artificial!',
-      'Apenas os mais sábios chegaram até aqui.',
+      'O selo final está fraco, e o Papa ainda resiste no altar.',
+      'O Maligno espera no centro da escuridão.',
       'Este é o momento da verdade. Lute com tudo!',
     ],
     enemies: [
       Enemy(
-        name: 'Neural Network',
-        maxHp: 150,
-        xpReward: 110,
-        assetPath: 'assets/images/capela/capela-Neural_Network.png',
-        color: const Color(0xFFCE93D8),
-        questions: const [
-          QuizQuestion(
-            question: 'O que é Machine Learning?',
-            options: [
-              'Programação manual de todas as regras',
-              'Sistema que aprende padrões a partir de dados',
-              'Banco de dados inteligente',
-              'Framework de desenvolvimento web',
-            ],
-            correctIndex: 1,
-          ),
-          QuizQuestion(
-            question: 'O que é overfitting em ML?',
-            options: [
-              'Modelo muito simples para os dados',
-              'Erro de hardware na GPU',
-              'Falta de dados de treinamento',
-              'Modelo excessivamente ajustado ao treino perdendo generalização',
-            ],
-            correctIndex: 3,
-          ),
-          QuizQuestion(
-            question: 'O que faz uma função de ativação em redes neurais?',
-            options: [
-              'Inicia o processo de treinamento',
-              'Introduz não-linearidade ao modelo',
-              'Reduz o número de parâmetros',
-              'Normaliza os dados de entrada',
-            ],
-            correctIndex: 1,
-          ),
-        ],
-      ),
-      Enemy(
-        name: 'GUARDIÃO FINAL',
+        name: 'MALIGNO',
         maxHp: 250,
         xpReward: 250,
         assetPath: 'assets/images/capela/capela-maligno-luta.png',

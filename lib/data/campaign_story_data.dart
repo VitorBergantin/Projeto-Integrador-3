@@ -11,6 +11,7 @@ const String kCantineiroPortrait = '☕';
 const String kBibliotecarioPortrait = '📚';
 const String kAnjoPortrait = '🪽';
 const String kPapaPortrait = '⛪';
+const String kMalignoPortrait = 'assets/images/capela/capela-maligno-idle.png';
 const String kMensagemPortrait = '✉️';
 
 // Edite este arquivo para moldar a campanha.
@@ -276,14 +277,73 @@ const Map<int, List<CampaignScene>> regionConclusionScenes = {
   ],
   4: [
     CampaignScene.cinematic(
-      title: 'A Capela',
+      title: 'O Maligno derrotado',
       textPages: [
-        'O Maligno cai. A fumaça negra se desfaz. O Papa finalmente está livre.',
-        'Por um momento, a PUC paralela encontra paz.',
+        'O golpe final atravessa a sombra que dominava a Capela. O Maligno cambaleia diante do altar, cercado por rachaduras de luz.',
+        'A fumaça negra tenta se recompor, mas a força que aprisionava a PUC paralela começa a perder forma.',
       ],
     ),
     CampaignScene.dialogue(
-      title: 'Fim?',
+      title: 'A queda do Maligno',
+      leftName: 'Vini',
+      leftPortrait: kViniPortrait,
+      rightName: 'Maligno',
+      rightPortrait: kMalignoPortrait,
+      dialogue: [
+        CampaignDialogueLine(
+          speaker: 'Maligno',
+          portrait: kMalignoPortrait,
+          side: DialogueSide.right,
+          text:
+              'Não... eu não posso cair para um aluno perdido com uma arma emprestada!',
+        ),
+        CampaignDialogueLine(
+          speaker: 'Vini',
+          portrait: kViniPortrait,
+          side: DialogueSide.left,
+          text:
+              'Você sequestrou o Papa, dividiu a PUC inteira e colocou todo mundo em risco. Acabou.',
+        ),
+        CampaignDialogueLine(
+          speaker: 'Maligno',
+          portrait: kMalignoPortrait,
+          side: DialogueSide.right,
+          text:
+              'Eu precisava dele! Enquanto o Papa existisse livre, meu domínio nunca seria completo.',
+        ),
+        CampaignDialogueLine(
+          speaker: 'Maligno',
+          portrait: kMalignoPortrait,
+          side: DialogueSide.right,
+          text:
+              'A fé dele mantinha o selo antigo vivo. Eu o prendi para drenar essa luz e transformar a PUC paralela no meu reino.',
+        ),
+        CampaignDialogueLine(
+          speaker: 'Vini',
+          portrait: kViniPortrait,
+          side: DialogueSide.left,
+          text:
+              'Então você não queria só vencer. Queria apagar tudo que ainda protegia este mundo.',
+        ),
+        CampaignDialogueLine(
+          speaker: 'Maligno',
+          portrait: kMalignoPortrait,
+          side: DialogueSide.right,
+          text:
+              'Eu voltarei. Sempre existe uma falha, uma brecha, um medo esperando para abrir caminho.',
+        ),
+      ],
+    ),
+    CampaignScene.cinematic(
+      title: 'O selo final',
+      textPages: [
+        'A tela escurece. Mesmo enfraquecido, o Papa ergue as mãos e invoca a magia que restava no coração da Capela.',
+        'A luz envolve o Maligno. O vilão grita, rejeita a derrota e tenta escapar, mas o selo se fecha antes que a sombra encontre uma nova brecha.',
+        'Com a magia final do Papa, o Maligno é selado para sempre. Ele nunca mais retornará, e a PUC paralela finalmente é salva.',
+      ],
+    ),
+    CampaignScene.dialogue(
+      title: 'A PUC paralela salva',
       leftName: 'Vini',
       leftPortrait: kViniPortrait,
       rightName: 'Papa',
@@ -294,20 +354,41 @@ const Map<int, List<CampaignScene>> regionConclusionScenes = {
           portrait: kPapaPortrait,
           side: DialogueSide.right,
           text:
-              'Obrigado por me salvar. Você carregou um peso que não era seu.',
+              'Vini... eu só consegui selá-lo porque você o enfraqueceu. Sua coragem devolveu esperança a este mundo.',
         ),
         CampaignDialogueLine(
           speaker: 'Vini',
           portrait: kViniPortrait,
           side: DialogueSide.left,
           text:
-              'Só quero voltar pra casa e fingir que hoje foi um trote muito elaborado.',
+              'Eu só fiz o que precisava ser feito. Mas confesso que não esperava salvar uma PUC de outra dimensão hoje.',
         ),
         CampaignDialogueLine(
-          speaker: 'Mensagem',
-          portrait: kMensagemPortrait,
+          speaker: 'Papa',
+          portrait: kPapaPortrait,
           side: DialogueSide.right,
-          text: 'Ainda não acabou.',
+          text:
+              'Os Lords caíram, as regiões foram libertadas e o selo foi restaurado. Tudo saiu como o destino planejou.',
+        ),
+        CampaignDialogueLine(
+          speaker: 'Vini',
+          portrait: kViniPortrait,
+          side: DialogueSide.left,
+          text: 'Então acabou mesmo?',
+        ),
+        CampaignDialogueLine(
+          speaker: 'Papa',
+          portrait: kPapaPortrait,
+          side: DialogueSide.right,
+          text:
+              'Acabou. A PUC paralela está salva. Agora volte em paz, protagonista.',
+        ),
+        CampaignDialogueLine(
+          speaker: 'Vini',
+          portrait: kViniPortrait,
+          side: DialogueSide.left,
+          text:
+              'Beleza. Mas se isso virar trabalho escrito, eu quero nota máxima.',
         ),
       ],
     ),
@@ -456,31 +537,51 @@ const Map<int, RegionIntroScene> regionIntroScenes = {
   4: RegionIntroScene(
     title: 'Capela',
     objective:
-        'Objetivo: entre na Capela, encontre o Papa e derrote o Maligno.',
+        'Objetivo: atravesse a Capela e derrote o Maligno, o guardião final.',
     leftName: 'Vini',
     leftPortrait: kViniPortrait,
-    rightName: 'Anjo',
-    rightPortrait: kAnjoPortrait,
+    rightName: 'Maligno',
+    rightPortrait: kMalignoPortrait,
     dialogue: [
       RegionIntroLine(
-        speaker: 'Anjo',
+        speaker: 'Vini',
+        side: DialogueSide.left,
+        text: 'A Capela está aberta... então é aqui que tudo termina.',
+      ),
+      RegionIntroLine(
+        speaker: 'Maligno',
         side: DialogueSide.right,
-        text: 'O Lord responsável pelo ataque está escondido dentro da Capela.',
+        text:
+            'Termina? Não. Aqui começa o mundo que eu tentei construir desde que roubei a luz do Papa.',
       ),
       RegionIntroLine(
         speaker: 'Vini',
         side: DialogueSide.left,
-        text: 'Então é lá que isso termina.',
+        text: 'Você sequestrou ele para controlar a PUC paralela?',
       ),
       RegionIntroLine(
-        speaker: 'Anjo',
+        speaker: 'Maligno',
         side: DialogueSide.right,
-        text: 'Receba o poder necessário para enfrentar o Maligno.',
+        text:
+            'O Papa era o coração do selo. Enquanto ele estivesse livre, minhas sombras jamais dominariam todas as regiões.',
+      ),
+      RegionIntroLine(
+        speaker: 'Papa',
+        portrait: kPapaPortrait,
+        side: DialogueSide.right,
+        text:
+            'Vini... não escute suas promessas. Ele se alimenta do medo e da desistência.',
       ),
       RegionIntroLine(
         speaker: 'Vini',
         side: DialogueSide.left,
-        text: 'Obrigado, Anjo. Vou acabar com tudo isso agora.',
+        text: 'Eu cheguei até aqui derrotando cada Lord. Não vou parar agora.',
+      ),
+      RegionIntroLine(
+        speaker: 'Maligno',
+        side: DialogueSide.right,
+        text:
+            'Então venha, protagonista. Mostre se a sua coragem sobrevive ao guardião final.',
       ),
     ],
   ),

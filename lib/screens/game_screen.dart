@@ -1051,7 +1051,10 @@ class _DefeatView extends StatelessWidget {
                   style: kBodyStyle,
                 ),
                 const SizedBox(height: 14),
-                const Text('[ A ] Voltar ao mapa', style: kDimStyle),
+                const Text(
+                  '[ A ] Tentar novamente    [ B ] Voltar',
+                  style: kDimStyle,
+                ),
               ],
             ),
           ),

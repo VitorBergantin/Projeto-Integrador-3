@@ -307,10 +307,10 @@ class GameController extends ChangeNotifier {
 
   void restartAfterDefeat() {
     player.hp = (player.maxHp * 0.6).round();
-    _currentEnemyIndex = 0;
     _lastAnswerCorrect = null;
-    _state = GameState.exploring;
-    notifyListeners();
+    _answerLocked = false;
+    _leveledUp = false;
+    startBattle();
   }
 
   void healPlayer() {

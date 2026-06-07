@@ -492,8 +492,15 @@ class _StoryTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final game = context.watch<GameController>();
+    final campaign = context.watch<CampaignController>();
     final h15 = gameRegions[1];
+    final completedCount = _storyChapters
+        .where(
+          (chapter) =>
+              campaign.defeatedBossRegions.contains(chapter.regionIndex),
+        )
+        .length;
+    final progress = completedCount / _storyChapters.length;
 
     return SafeArea(
       child: ListView(
@@ -503,7 +510,7 @@ class _StoryTab extends StatelessWidget {
           const Text('HISTÓRIA + EXPLORAÇÃO', style: kTitleStyle),
           const Divider(color: kGoldDark, height: 20),
           Text(
-            'Comece pelo tutorial cinematográfico e avance pela campanha.',
+            'Acompanhe a jornada, leia o resumo dos capítulos e continue a campanha principal.',
             style: kBodyStyle.copyWith(fontSize: 12),
           ),
           const SizedBox(height: 16),
@@ -522,8 +529,8 @@ class _StoryTab extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Text(h15.emoji, style: const TextStyle(fontSize: 38)),
-                  const SizedBox(width: 14),
+                  const Icon(Icons.play_arrow_rounded, color: kGold, size: 38),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -539,52 +546,185 @@ class _StoryTab extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Prólogo, tutorial, geofence, exploração e bosses.',
+                          'Prólogo, tutorial, exploração, bosses e final da Capela.',
                           style: kBodyStyle.copyWith(fontSize: 12),
                         ),
                       ],
                     ),
                   ),
-                  const Icon(Icons.play_arrow, color: kGold),
+                  const Icon(Icons.chevron_right, color: kGold),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 18),
-          const Text('ATALHOS DE TESTE', style: kDimStyle),
-          const SizedBox(height: 10),
-          GestureDetector(
-            onTap: () {
-              game.enterRegion(1);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => RegionExploreScreen(
-                    regionIndex: 1,
-                    playerName: playerName,
+          FfCornerBox(
+            borderColor: kGoldDark,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'PROGRESSO DA CAMPANHA',
+                  style: TextStyle(
+                    color: kGold,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2,
                   ),
                 ),
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.all(14),
-              decoration: ffBox(borderColor: kGoldDark, bgColor: kDarkBlue),
-              child: const Row(
-                children: [
-                  Text('🗺️', style: TextStyle(fontSize: 24)),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Entrar direto na exploração do H15',
-                      style: kBodyStyle,
-                    ),
+                const SizedBox(height: 10),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(3),
+                  child: LinearProgressIndicator(
+                    minHeight: 8,
+                    value: progress,
+                    color: kGold,
+                    backgroundColor: kBorder,
                   ),
-                  Icon(Icons.chevron_right, color: kGoldDark),
-                ],
-              ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '$completedCount de ${_storyChapters.length} capítulos concluídos',
+                  style: kDimStyle,
+                ),
+              ],
             ),
           ),
+          const SizedBox(height: 18),
+          const Text('CAPÍTULOS DA JORNADA', style: kDimStyle),
+          const SizedBox(height: 10),
+          for (final chapter in _storyChapters)
+            _StoryChapterCard(
+              chapter: chapter,
+              completed: campaign.defeatedBossRegions.contains(
+                chapter.regionIndex,
+              ),
+              unlocked: campaign.isRegionUnlocked(chapter.regionIndex),
+            ),
         ],
+      ),
+    );
+  }
+}
+
+class _StoryChapterSummary {
+  final int regionIndex;
+  final String title;
+  final String summary;
+
+  const _StoryChapterSummary({
+    required this.regionIndex,
+    required this.title,
+    required this.summary,
+  });
+}
+
+const _storyChapters = [
+  _StoryChapterSummary(
+    regionIndex: 1,
+    title: 'Capítulo 1 - Bloco H15',
+    summary:
+        'Vini desperta na PUC paralela depois de ser arrancado do estacionamento por um portal. No H15, ele recebe as primeiras pistas do conflito e aprende que a lógica, os códigos e os corredores do campus agora foram tomados por forças hostis.',
+  ),
+  _StoryChapterSummary(
+    regionIndex: 0,
+    title: 'Capítulo 2 - Praça de Alimentação',
+    summary:
+        'A Praça de Alimentação vira o primeiro grande território corrompido fora do tutorial. Entre NPCs assustados, lacaios e pistas espalhadas, Vini descobre que cada região guarda uma parte do domínio dos Lords.',
+  ),
+  _StoryChapterSummary(
+    regionIndex: 2,
+    title: 'Capítulo 3 - Manacás',
+    summary:
+        'No Manacás, a aventura muda de tom: caminhos familiares parecem estranhos, e o campus começa a mostrar o tamanho da invasão. Vini precisa ajudar quem ficou preso e provar que consegue avançar mesmo quando a própria região tenta barrar sua passagem.',
+  ),
+  _StoryChapterSummary(
+    regionIndex: 3,
+    title: 'Capítulo 4 - Biblioteca',
+    summary:
+        'A Biblioteca concentra conhecimento, medo e respostas sobre o selo que protege a PUC paralela. Ao libertar essa região, Vini enfraquece a barreira que esconde a Capela e se aproxima da verdade sobre o sequestro do Papa.',
+  ),
+  _StoryChapterSummary(
+    regionIndex: 4,
+    title: 'Capítulo 5 - Capela',
+    summary:
+        'Com todos os Lords derrotados, a Capela se abre para o confronto final. Lá, Vini encara o Maligno, descobre por que o Papa foi capturado e decide o destino da PUC paralela.',
+  ),
+];
+
+class _StoryChapterCard extends StatelessWidget {
+  final _StoryChapterSummary chapter;
+  final bool completed;
+  final bool unlocked;
+
+  const _StoryChapterCard({
+    required this.chapter,
+    required this.completed,
+    required this.unlocked,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final region = gameRegions[chapter.regionIndex];
+    final opacity = completed || unlocked ? 1.0 : 0.45;
+    final borderColor = completed
+        ? kGreenHPLight
+        : unlocked
+        ? region.primaryColor
+        : kGoldDark;
+    final status = completed
+        ? 'CONCLUÍDO'
+        : unlocked
+        ? 'DISPONÍVEL'
+        : 'BLOQUEADO';
+
+    return Opacity(
+      opacity: opacity,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(14),
+        decoration: ffBox(borderColor: borderColor, bgColor: kDarkBlue),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    chapter.title.toUpperCase(),
+                    style: TextStyle(
+                      color: completed ? kGreenHPLight : kGold,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.6,
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  decoration: ffBox(
+                    borderColor: borderColor,
+                    bgColor: kNavy.withValues(alpha: 0.72),
+                  ),
+                  child: Text(
+                    status,
+                    style: TextStyle(
+                      color: completed ? kGreenHPLight : kParchmentDim,
+                      fontSize: 8,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(chapter.summary, style: kBodyStyle.copyWith(fontSize: 11.5)),
+          ],
+        ),
       ),
     );
   }

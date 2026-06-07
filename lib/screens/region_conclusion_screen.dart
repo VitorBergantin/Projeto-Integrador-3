@@ -4,6 +4,7 @@ import '../models/campaign_scene.dart';
 import '../theme/game_theme.dart';
 import '../widgets/action_buttons_widget.dart';
 import '../widgets/dpad_widget.dart';
+import 'credits_screen.dart';
 import 'story_explore_screen.dart';
 
 class RegionConclusionScreen extends StatefulWidget {
@@ -58,6 +59,16 @@ class _RegionConclusionScreenState extends State<RegionConclusionScreen> {
   }
 
   void _finish() {
+    if (widget.regionIndex == 4) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => CreditsScreen(playerName: widget.playerName),
+        ),
+      );
+      return;
+    }
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(

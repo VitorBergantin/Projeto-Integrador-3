@@ -63,11 +63,15 @@ class RegionIntroLine {
   final String speaker;
   final String text;
   final DialogueSide side;
+  final String? portrait;
+  final String? actorName;
 
   const RegionIntroLine({
     required this.speaker,
     required this.text,
     required this.side,
+    this.portrait,
+    this.actorName,
   });
 }
 
