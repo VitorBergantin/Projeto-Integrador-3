@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../controllers/audio_controller.dart';
 import '../theme/game_theme.dart';
 import 'home_screen.dart';
 
@@ -21,6 +23,10 @@ class _LoadingScreenState extends State<LoadingScreen>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<AudioController>().playLogin();
+    });
 
     // Fade in da logo
     _fadeCtrl = AnimationController(
@@ -35,9 +41,10 @@ class _LoadingScreenState extends State<LoadingScreen>
       vsync: this,
       duration: const Duration(milliseconds: 1800),
     )..repeat(reverse: true);
-    _pulseAnim = Tween<double>(begin: 0.95, end: 1.05).animate(
-      CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
-    );
+    _pulseAnim = Tween<double>(
+      begin: 0.95,
+      end: 1.05,
+    ).animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
 
     // Animação dos pontinhos de carregamento
     Future.doWhile(() async {
@@ -80,9 +87,7 @@ class _LoadingScreenState extends State<LoadingScreen>
         child: Stack(
           children: [
             // ── Fundo decorativo (linhas diagonais sutis) ──────
-            Positioned.fill(
-              child: CustomPaint(painter: _GridPainter()),
-            ),
+            Positioned.fill(child: CustomPaint(painter: _GridPainter())),
 
             // ── Conteúdo central ───────────────────────────────
             Center(
@@ -113,8 +118,7 @@ class _LoadingScreenState extends State<LoadingScreen>
                           'assets/images/logo.jpg',
                           fit: BoxFit.cover,
                           errorBuilder: (_, _, _) => const Center(
-                            child: Text('⚔️',
-                                style: TextStyle(fontSize: 72)),
+                            child: Text('⚔️', style: TextStyle(fontSize: 72)),
                           ),
                         ),
                       ),

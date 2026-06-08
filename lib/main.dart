@@ -5,6 +5,7 @@ import 'screens/loading_screen.dart';
 import 'services/pontos_controller.dart';
 import 'data/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'controllers/audio_controller.dart';
 import 'controllers/game_controller.dart';
 import 'controllers/campaign_controller.dart';
 
@@ -19,6 +20,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => PontosController()),
         ChangeNotifierProvider(create: (_) => GameController()),
         ChangeNotifierProvider(create: (_) => CampaignController()),
+        ChangeNotifierProvider(create: (_) => AudioController()),
       ],
       child: const RpgMobileApp(),
     ),

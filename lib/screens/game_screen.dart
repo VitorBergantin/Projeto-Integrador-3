@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../controllers/audio_controller.dart';
 import '../controllers/game_controller.dart';
 import '../data/game_assets.dart';
 import '../theme/game_theme.dart';
@@ -16,12 +17,39 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
+  GameState? _lastAudioState;
+  int? _lastAudioRegion;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       context.read<GameController>().init(widget.playerName, false);
+    });
+  }
+
+  void _syncAudio(GameController game) {
+    final regionIndex = game.player.currentRegion;
+    if (_lastAudioState == game.state && _lastAudioRegion == regionIndex) {
+      return;
+    }
+    _lastAudioState = game.state;
+    _lastAudioRegion = regionIndex;
+
+    final audio = context.read<AudioController>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      switch (game.state) {
+        case GameState.victory:
+          audio.playVictory();
+          break;
+        case GameState.defeat:
+          audio.playDefeat();
+          break;
+        default:
+          audio.playRegion(regionIndex);
+      }
     });
   }
 
@@ -32,6 +60,7 @@ class _GameScreenState extends State<GameScreen> {
       body: SafeArea(
         child: Consumer<GameController>(
           builder: (context, game, _) {
+            _syncAudio(game);
             return Column(
               children: [
                 _TopBar(game: game),

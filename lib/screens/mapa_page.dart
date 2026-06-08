@@ -3,7 +3,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import '../services/pontos_controller.dart';
 
-
 class MapaPage extends StatefulWidget {
   const MapaPage({super.key});
 
@@ -19,29 +18,20 @@ class _MapaPageState extends State<MapaPage> {
     final controller = context.watch<PontosController>();
 
     if (controller.loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     if (controller.erro.isNotEmpty) {
-      return Scaffold(
-        body: Center(child: Text(controller.erro)),
-      );
+      return Scaffold(body: Center(child: Text(controller.erro)));
     }
 
     final posicaoUsuario = LatLng(controller.lati, controller.long);
-    mapController?.animateCamera(
-      CameraUpdate.newLatLng(posicaoUsuario),
-    );
+    mapController?.animateCamera(CameraUpdate.newLatLng(posicaoUsuario));
 
     return Scaffold(
       appBar: AppBar(title: const Text('Mapa')),
       body: GoogleMap(
-        initialCameraPosition: CameraPosition(
-          target: posicaoUsuario,
-          zoom: 18,
-        ),
+        initialCameraPosition: CameraPosition(target: posicaoUsuario, zoom: 18),
         onMapCreated: (mapCtrl) {
           mapController = mapCtrl;
         },
@@ -59,17 +49,14 @@ class _MapaPageState extends State<MapaPage> {
           ),
 
           ...controller.ambientes.map((amb) {
-              return Marker(
-                markerId: MarkerId(amb.id),
-                position: LatLng(amb.latitude, amb.longitude),
-                infoWindow: InfoWindow(
-                  title: amb.nome,
-                  snippet: amb.descricao,
-                ),
-              );
-            }),
-          },
-          circles: controller.ambientes.map((amb) {
+            return Marker(
+              markerId: MarkerId(amb.id),
+              position: LatLng(amb.latitude, amb.longitude),
+              infoWindow: InfoWindow(title: amb.nome, snippet: amb.descricao),
+            );
+          }),
+        },
+        circles: controller.ambientes.map((amb) {
           final dentro = controller.pontoAtual == amb.id;
 
           return Circle(

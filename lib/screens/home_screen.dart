@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
+import '../controllers/audio_controller.dart';
 import '../controllers/game_controller.dart';
 import '../theme/game_theme.dart';
 import 'mapa_game_screen.dart';
@@ -24,6 +25,15 @@ class _HomeScreenState extends State<HomeScreen> {
   // Web client ID do android/app/google-services.json (client_type: 3).
   static const String _googleServerClientId =
       '258099890778-nqf0a81grrpqplmuvevlia8eve9vdses.apps.googleusercontent.com';
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<AudioController>().playLogin();
+    });
+  }
 
   @override
   void dispose() {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import '../services/pontos_controller.dart';
+import '../controllers/audio_controller.dart';
 import '../controllers/game_controller.dart';
 import '../controllers/campaign_controller.dart';
 import '../models/game_region.dart';
@@ -27,6 +28,15 @@ class _MapaGameScreenState extends State<MapaGameScreen> {
   GoogleMapController? _mapController;
   bool _battleBannerDismissed = false;
   String? _lastPontoAtual;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<AudioController>().playMenu();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,11 +101,11 @@ class _MapaGameScreenState extends State<MapaGameScreen> {
     );
   }
 
-  void _entrarNaBatalha(
+  Future<void> _entrarNaBatalha(
     BuildContext context,
     PontosController pontos,
     GameController game,
-  ) {
+  ) async {
     final ambId = pontos.pontoAtual;
     if (ambId == null) return;
 
@@ -105,17 +115,23 @@ class _MapaGameScreenState extends State<MapaGameScreen> {
       return;
     }
     game.enterRegion(regionIndex);
+    final audio = context.read<AudioController>();
 
-    Navigator.push(
+    await Navigator.push(
       context,
       MaterialPageRoute(
         fullscreenDialog: true,
         builder: (_) => GameScreen(playerName: widget.playerName),
       ),
     );
+    if (!mounted) return;
+    audio.playMenu();
   }
 
-  void _explorarRegiao(BuildContext context, PontosController pontos) {
+  Future<void> _explorarRegiao(
+    BuildContext context,
+    PontosController pontos,
+  ) async {
     final ambId = pontos.pontoAtual;
     if (ambId == null) return;
 
@@ -124,7 +140,8 @@ class _MapaGameScreenState extends State<MapaGameScreen> {
       _mostrarAmbienteInvalido(context);
       return;
     }
-    Navigator.push(
+    final audio = context.read<AudioController>();
+    await Navigator.push(
       context,
       MaterialPageRoute(
         fullscreenDialog: true,
@@ -134,6 +151,8 @@ class _MapaGameScreenState extends State<MapaGameScreen> {
         ),
       ),
     );
+    if (!mounted) return;
+    audio.playMenu();
   }
 
   void _mostrarAmbienteInvalido(BuildContext context) {

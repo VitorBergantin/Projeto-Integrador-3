@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../controllers/audio_controller.dart';
 import '../controllers/campaign_controller.dart';
 import '../controllers/game_controller.dart';
 import '../data/campaign_story_data.dart';
@@ -38,6 +39,13 @@ class _RegionExploreScreenState extends State<RegionExploreScreen> {
   int _dialogueLine = 0;
   bool _showRegionIntro = false;
   int _introLine = 0;
+  late AudioController _audio;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _audio = context.read<AudioController>();
+  }
 
   @override
   void initState() {
@@ -46,6 +54,16 @@ class _RegionExploreScreenState extends State<RegionExploreScreen> {
     _py = playerStartY(widget.regionIndex);
     _entities = entitiesForRegion(widget.regionIndex);
     _showRegionIntro = regionIntroScenes.containsKey(widget.regionIndex);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<AudioController>().playRegion(widget.regionIndex);
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _audio.playMenu());
+    super.dispose();
   }
 
   // ── Movimento ───────────────────────────────────────────────────
@@ -174,6 +192,7 @@ class _RegionExploreScreenState extends State<RegionExploreScreen> {
       ),
     );
     if (!mounted || won != true) return;
+    context.read<AudioController>().playRegion(widget.regionIndex);
 
     await game.marcarEncontroDerrotado(entity.id);
     if (!mounted) return;

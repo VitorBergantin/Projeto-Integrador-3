@@ -20,6 +20,7 @@ dependencies:
   cloud_firestore: ^6.3.0
   firebase_core: ^4.7.0
   google_sign_in: ^7.2.0
+  audioplayers: ^6.7.1
 
 dev_dependencies:
   flutter_test:
@@ -39,3 +40,4 @@ flutter:
     - assets/images/manacas/
     - assets/images/biblioteca/
     - assets/images/capela/
+    - assets/audio/music/

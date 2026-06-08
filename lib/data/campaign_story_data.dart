@@ -4,14 +4,28 @@ import 'game_assets.dart';
 const int h15RegionIndex = 1;
 
 const String kViniPortrait = GameAssets.viniNeutro;
-const String kMagoPortrait = '🧙‍♂️';
-const String kHamburgaoPortrait = '🍔';
-const String kDuendePortrait = '🟢';
+const String kViniAlegrePortrait = GameAssets.viniAlegre;
+const String kViniBravoPortrait = GameAssets.viniBravo;
+const String kViniPensativoPortrait = GameAssets.viniPensativo;
+const String kViniSerioPortrait = GameAssets.viniSerio;
+const String kViniSurpresoPortrait = GameAssets.viniSurpreso;
+const String kMagoPortrait = GameAssets.magoNeutro;
+const String kMagoAtentoPortrait = GameAssets.magoAtento;
+const String kMagoSurpresoPortrait = GameAssets.magoSurpreso;
+const String kHamburgaoPortrait = GameAssets.hamburguerNeutro;
+const String kHamburgaoJoiaPortrait = GameAssets.hamburguerJoia;
+const String kDuendePortrait = GameAssets.duendeNeutro;
+const String kDuendeIdeiaPortrait = GameAssets.duendeIdeia;
+const String kDuendePensandoPortrait = GameAssets.duendePensando;
+const String kDuendeSorrindoPortrait = GameAssets.duendeSorrindo;
 const String kCantineiroPortrait = '☕';
 const String kBibliotecarioPortrait = '📚';
 const String kAnjoPortrait = '🪽';
 const String kPapaPortrait = '⛪';
-const String kMalignoPortrait = 'assets/images/capela/capela-maligno-idle.png';
+const String kMalignoPortrait = GameAssets.malignoNeutro;
+const String kMalignoBravoPortrait = GameAssets.malignoBravo;
+const String kMalignoRindoPortrait = GameAssets.malignoRindo;
+const String kMalignoSorrindoPortrait = GameAssets.malignoSorrindo;
 const String kMensagemPortrait = '✉️';
 
 // Edite este arquivo para moldar a campanha.
@@ -37,45 +51,45 @@ const List<CampaignScene> campaignScenes = [
     dialogue: [
       CampaignDialogueLine(
         speaker: 'Vini',
-        portrait: kViniPortrait,
+        portrait: kViniSurpresoPortrait,
         side: DialogueSide.left,
         text: 'Meu Deus!!! Onde eu tô?',
       ),
       CampaignDialogueLine(
         speaker: 'Mago',
-        portrait: kMagoPortrait,
+        portrait: kMagoSurpresoPortrait,
         side: DialogueSide.right,
         text: 'Finalmente você chegou!!!',
       ),
       CampaignDialogueLine(
         speaker: 'Vini',
-        portrait: kViniPortrait,
+        portrait: kViniSerioPortrait,
         side: DialogueSide.left,
         text: 'Tá... quem é você? E como eu vim parar aqui?',
       ),
       CampaignDialogueLine(
         speaker: 'Mago',
-        portrait: kMagoPortrait,
+        portrait: kMagoAtentoPortrait,
         side: DialogueSide.right,
         text:
             'Sou apenas conhecido como Mago. E você foi trazido porque este mundo precisa de ajuda.',
       ),
       CampaignDialogueLine(
         speaker: 'Vini',
-        portrait: kViniPortrait,
+        portrait: kViniPensativoPortrait,
         side: DialogueSide.left,
         text: 'Isso aqui é algum tipo de sonho?',
       ),
       CampaignDialogueLine(
         speaker: 'Mago',
-        portrait: kMagoPortrait,
+        portrait: kMagoAtentoPortrait,
         side: DialogueSide.right,
         text:
             'Infelizmente não. Lords de outras dimensões invadiram este lugar... e capturaram o Papa.',
       ),
       CampaignDialogueLine(
         speaker: 'Vini',
-        portrait: kViniPortrait,
+        portrait: kViniSurpresoPortrait,
         side: DialogueSide.left,
         text: 'Espera. Então aquela explosão foi real?',
       ),
@@ -104,13 +118,13 @@ const List<CampaignScene> campaignScenes = [
     dialogue: [
       CampaignDialogueLine(
         speaker: 'Vini',
-        portrait: kViniPortrait,
+        portrait: kViniSurpresoPortrait,
         side: DialogueSide.left,
         text: 'Então eu tenho que salvar o mundo sozinho??!!!',
       ),
       CampaignDialogueLine(
         speaker: 'Mago',
-        portrait: kMagoPortrait,
+        portrait: kMagoAtentoPortrait,
         side: DialogueSide.right,
         text: 'Sozinho não. Mas o destino depende de você.',
       ),
@@ -122,7 +136,7 @@ const List<CampaignScene> campaignScenes = [
       ),
       CampaignDialogueLine(
         speaker: 'Vini',
-        portrait: kViniPortrait,
+        portrait: kViniAlegrePortrait,
         side: DialogueSide.left,
         text: 'Beleza. Se isso virou prova da faculdade, eu vou passar.',
       ),
@@ -148,7 +162,7 @@ const Map<int, List<CampaignScene>> regionConclusionScenes = {
       dialogue: [
         CampaignDialogueLine(
           speaker: 'Mr. Hamburgão',
-          portrait: kHamburgaoPortrait,
+          portrait: kHamburgaoJoiaPortrait,
           side: DialogueSide.right,
           text: 'VOCÊ CONSEGUIU! A praça está respirando de novo!',
         ),
@@ -185,7 +199,7 @@ const Map<int, List<CampaignScene>> regionConclusionScenes = {
       dialogue: [
         CampaignDialogueLine(
           speaker: 'Duende',
-          portrait: kDuendePortrait,
+          portrait: kDuendeSorrindoPortrait,
           side: DialogueSide.right,
           text: 'Tá bom. Admito. Você foi melhor do que eu esperava.',
         ),
@@ -197,7 +211,7 @@ const Map<int, List<CampaignScene>> regionConclusionScenes = {
         ),
         CampaignDialogueLine(
           speaker: 'Duende',
-          portrait: kDuendePortrait,
+          portrait: kDuendePensandoPortrait,
           side: DialogueSide.right,
           text:
               'Não relaxa. Enquanto todos os Lords não caírem, a Capela continuará fechada.',
@@ -292,42 +306,42 @@ const Map<int, List<CampaignScene>> regionConclusionScenes = {
       dialogue: [
         CampaignDialogueLine(
           speaker: 'Maligno',
-          portrait: kMalignoPortrait,
+          portrait: kMalignoBravoPortrait,
           side: DialogueSide.right,
           text:
               'Não... eu não posso cair para um aluno perdido com uma arma emprestada!',
         ),
         CampaignDialogueLine(
           speaker: 'Vini',
-          portrait: kViniPortrait,
+          portrait: kViniSerioPortrait,
           side: DialogueSide.left,
           text:
               'Você sequestrou o Papa, dividiu a PUC inteira e colocou todo mundo em risco. Acabou.',
         ),
         CampaignDialogueLine(
           speaker: 'Maligno',
-          portrait: kMalignoPortrait,
+          portrait: kMalignoRindoPortrait,
           side: DialogueSide.right,
           text:
               'Eu precisava dele! Enquanto o Papa existisse livre, meu domínio nunca seria completo.',
         ),
         CampaignDialogueLine(
           speaker: 'Maligno',
-          portrait: kMalignoPortrait,
+          portrait: kMalignoSorrindoPortrait,
           side: DialogueSide.right,
           text:
               'A fé dele mantinha o selo antigo vivo. Eu o prendi para drenar essa luz e transformar a PUC paralela no meu reino.',
         ),
         CampaignDialogueLine(
           speaker: 'Vini',
-          portrait: kViniPortrait,
+          portrait: kViniSerioPortrait,
           side: DialogueSide.left,
           text:
               'Então você não queria só vencer. Queria apagar tudo que ainda protegia este mundo.',
         ),
         CampaignDialogueLine(
           speaker: 'Maligno',
-          portrait: kMalignoPortrait,
+          portrait: kMalignoBravoPortrait,
           side: DialogueSide.right,
           text:
               'Eu voltarei. Sempre existe uma falha, uma brecha, um medo esperando para abrir caminho.',

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../data/game_assets.dart';
 import 'enemy.dart';
 import 'quiz_question.dart';
 
@@ -152,7 +153,7 @@ List<GameRegion> get gameRegions => [
         name: 'Loop Infinito',
         maxHp: 80,
         xpReward: 55,
-        assetPath: 'assets/images/h15/h15-Loop.png',
+        assetPath: GameAssets.entityForId('h15_loop_infinito')!,
         color: const Color(0xFF42A5F5),
         questions: const [
           QuizQuestion(
@@ -186,7 +187,7 @@ List<GameRegion> get gameRegions => [
         name: 'Recursão Selvagem',
         maxHp: 100,
         xpReward: 70,
-        assetPath: 'assets/images/h15/h15-Recursao.png',
+        assetPath: GameAssets.entityForId('h15_recursao_selvagem')!,
         color: const Color(0xFF7E57C2),
         questions: const [
           QuizQuestion(
@@ -237,7 +238,7 @@ List<GameRegion> get gameRegions => [
         name: 'SQL Injection',
         maxHp: 100,
         xpReward: 70,
-        assetPath: 'assets/images/manacas/manacas-SQL_Injection.png',
+        assetPath: GameAssets.entityForId('manacas_sql_injection')!,
         color: const Color(0xFFEF5350),
         questions: const [
           QuizQuestion(
@@ -272,7 +273,7 @@ List<GameRegion> get gameRegions => [
         name: 'DeadLock',
         maxHp: 130,
         xpReward: 90,
-        assetPath: 'assets/images/manacas/manacas-deadlock.png',
+        assetPath: GameAssets.entityForId('manacas_deadlock')!,
         color: const Color(0xFFFF7043),
         questions: const [
           QuizQuestion(
@@ -327,7 +328,7 @@ List<GameRegion> get gameRegions => [
         name: 'Vírus de Rede',
         maxHp: 120,
         xpReward: 85,
-        assetPath: 'assets/images/biblioteca/biblioteca-Virus.png',
+        assetPath: GameAssets.entityForId('biblioteca_virus')!,
         color: const Color(0xFFEF9A9A),
         questions: const [
           QuizQuestion(
@@ -366,7 +367,7 @@ List<GameRegion> get gameRegions => [
         name: 'Firewall Corrompido',
         maxHp: 160,
         xpReward: 110,
-        assetPath: 'assets/images/biblioteca/biblioteca-firewall.png',
+        assetPath: GameAssets.entityForId('biblioteca_firewall')!,
         color: const Color(0xFFFFA726),
         questions: const [
           QuizQuestion(
